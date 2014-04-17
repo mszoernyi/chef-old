@@ -40,6 +40,8 @@ alias con="bundle exec rails console"
 # chef helper
 alias kcu="knife cookbook upload"
 
+alias nutz="ssh mike@cafe.noova.de"
+
 # always use system ruby to start vim
 vim() {
 	rvm system exec vim "$@"
@@ -55,7 +57,7 @@ remote_tmux() {
 }
 
 function Z() {
-	remote_tmux madvertise.net 9991
+	remote_tmux dev2.lqm.io 9991
 }
 
 repm() {

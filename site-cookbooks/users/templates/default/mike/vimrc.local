@@ -92,6 +92,8 @@ NeoBundle 'scrooloose/nerdtree'
 " close nerdtree if its the last window
 " https://github.com/scrooloose/nerdtree/issues/21
 autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
+nnoremap <silent> <leader>m :NERDTreeToggle<CR>
+nnoremap <silent> <leader>f :NERDTreeFind<CR>
 
 " Full path fuzzy file, buffer, mru, tag, ... finder for Vim.
 NeoBundle 'hollow/ctrlp.vim'
