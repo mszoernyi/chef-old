@@ -9,27 +9,10 @@
   },
 
   "run_list": [
-    "role[workstation]",
-    "recipe[mac::1password]",
-    "recipe[mac::android]",
-    "recipe[mac::calibre]",
-    "recipe[mac::cleanmymac]",
-    "recipe[mac::cord]",
-    "recipe[mac::dash]",
-    "recipe[mac::drive]",
-    "recipe[mac::fidelia]",
-    "recipe[mac::flux]",
-    "recipe[mac::hipchat]",
-    "recipe[mac::istatmenus]",
-    "recipe[mac::monkeyoffice]",
-    "recipe[mac::mplayerx]",
-    "recipe[mac::outbank]",
-    "recipe[mac::skitch]",
-    "recipe[mac::skype]",
-    "recipe[mac::spotify]",
-    "recipe[mac::teamviewer]",
-    "recipe[mac::tunnelblick]",
-    "recipe[mac::unarchiver]",
-    "recipe[mac::visualvm]"
+    "recipe[bash]",
+    "recipe[vim]",
+    "recipe[git]",
+    "recipe[htop]",
+    "recipe[tmux]"
   ]
 }

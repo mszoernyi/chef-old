@@ -56,6 +56,10 @@ remote_tmux() {
 	fi
 }
 
+function A() {
+	remote_tmux mike.adjust.com 9991
+}
+
 function Z() {
 	remote_tmux dev2.lqm.io 9991
 }
