@@ -8,5 +8,13 @@ class Chef
       run_list.include?("role[#{role_name}]") or (self[:roles] and self[:roles].include?(role_name))
     end
 
+    def cluster_name
+      if self[:cluster] and self[:cluster][:name]
+        self[:cluster][:name]
+      else
+        self[:fqdn]
+      end
+    end
+
   end
 end

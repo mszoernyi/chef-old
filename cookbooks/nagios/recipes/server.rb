@@ -7,11 +7,9 @@ end
 package "net-analyzer/nagios"
 
 include_recipe "nagios"
-include_recipe "nagios::livestatus"
 include_recipe "nagios::nrpe"
 include_recipe "nagios::nsca"
 include_recipe "nagios::splunk"
-include_recipe "nagios::calendar"
 
 directory "/var/nagios/rw" do
   owner "nagios"
@@ -65,7 +63,7 @@ end.flatten.compact.map do |v|
   Chef::Node.new.tap do |n|
     n.chef_environment "production"
     n.default[:fqdn] = v[:name]
-    n.default[:primary_ipaddress] = v[:name]
+    n.default[:ipaddress] = v[:name]
     n.default[:virtualization] = {}
     n.default[:nagios][:services] = {}
     add_services_for_vhost(n)
@@ -76,18 +74,12 @@ hosts = (vhosts + hosts).sort_by do |n|
   n[:fqdn]
 end
 
-roles = node.run_state[:roles].reject do |r|
-  r.name == "base"
-end.sort_by do |r|
-  r.name
-end
-
 # build hostgroups
 hostgroups = {}
 
 hosts.each do |h|
   # group per cluster
-  cluster = h[:cluster][:name] rescue "default"
+  cluster = h.cluster_name
 
   hostgroups[cluster] ||= []
   hostgroups[cluster] << h[:fqdn]
@@ -105,6 +97,7 @@ end
 servicegroups = []
 hosts.each do |h|
   next unless h[:nagios]
+  next unless h[:nagios][:services]
   h[:nagios][:services].each do |name, params|
     if params[:servicegroups]
       servicegroups |= params[:servicegroups].split(",")
@@ -197,6 +190,11 @@ spawn_fcgi "nagios" do
   })
 end
 
+include_recipe "nginx"
+
+ssl_certificate "/etc/ssl/nginx/nagios" do
+  cn node[:nagios][:certificate]
+end
 
 nginx_server "nagios" do
   template "nginx.conf"

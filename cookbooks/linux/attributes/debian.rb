@@ -1,6 +1,6 @@
 # base packages
 if debian_based?
-  node.set[:packages] = %w(
+  default[:packages] = %w(
     ack
     acpitool
     apache2-utils
@@ -32,9 +32,11 @@ if debian_based?
     netcat
     nmap
     pciutils
+    psmisc
     pwgen
     pydf
     realpath
+    ruby1.9.3
     strace
     sysstat
     tcpdump
@@ -47,13 +49,13 @@ if debian_based?
   )
 
   if debian?
-    node.set[:packages] += %w(
+    default[:packages] += %w(
       libffi5
     )
   end
 
   if ubuntu?
-    node.set[:packages] += %w(
+    default[:packages] += %w(
       libffi6
     )
   end

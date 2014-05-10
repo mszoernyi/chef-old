@@ -1,10 +1,11 @@
-# make the primary IP address overridable
-default[:primary_ipaddress] = node[:ipaddress] || "127.0.0.1"
-default[:primary_ip6address] = nil
-
 # cluster support
 default[:chef_domain] = node[:domain]
-default[:cluster][:name] = node[:fqdn]
+
+if match = node[:fqdn].sub(node[:chef_domain], '').match(/^(.+?)\.(.+?)\.$/)
+  default[:cluster][:name] = match[2]
+else
+  default[:cluster][:name] = node[:fqdn]
+end
 
 if match = node[:hostname].match(/(.+?)(\d+)$/)
   default[:cluster][:host][:group] = match[1]
@@ -17,18 +18,6 @@ end
 # contacts
 default[:contacts][:hostmaster] = "hostmaster@#{node[:chef_domain]}"
 
-# virtualization foo
-default[:virtualization][:role] = "host"
-if gentoo?
-  %x(systemd-detect-virt &>/dev/null)
-  default[:virtualization][:guest] = $?.exitstatus == 0
-end
-default[:skip][:hardware] = node[:virtualization][:guest]
-
-# provide sane default values in case ohai didn't find them
-default_unless[:cpu][:total] = 1
-default_unless[:virtualization] = {}
-
 # support non-root runs
 if root?
   default[:homedir] = "/root"
@@ -40,33 +29,4 @@ else
   default[:current_email] = "#{node[:current_user]}@#{node[:fqdn]}"
   default[:current_name] = get_user(node[:current_user])[:gecos]
   default[:script_path] = "#{node[:homedir]}/bin"
-end
-
-# ec2 support
-if node[:ec2] and node[:ec2][:local_ipv4]
-  default[:bind_ipaddress] = node[:ec2][:local_ipv4]
-else
-  default[:bind_ipaddress] = node[:primary_ipaddress]
-end
-
-# detect network interfaces
-node[:network][:interfaces].each do |name, int|
-  next unless int[:addresses]
-  if int[:addresses].keys.include?(node[:primary_ipaddress])
-    set[:primary_interface] = name
-    break
-  end
-end
-
-# legacy support for local networks
-default[:local_ipaddress] = nil
-
-if node[:local_ipaddress]
-  node[:network][:interfaces].each do |name, int|
-    next unless int[:addresses]
-    if int[:addresses].keys.include?(node[:local_ipaddress])
-      set[:local_interface] = name
-      break
-    end
-  end
 end

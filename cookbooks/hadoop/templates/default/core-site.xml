@@ -6,13 +6,18 @@
 <% if @name_node %>
   <property>
     <name>fs.default.name</name>
-    <value>hdfs://<%= @name_node[:fqdn] %>:9000/</value>
+    <value>hdfs://<%= @name_node[:ipaddress] %>:9000/</value>
   </property>
   <property>
     <name>dfs.hosts.exclude</name>
     <value>/var/lib/hadoop/dfs.hosts.exclude</value>
   </property>
 <% end %>
+
+  <property>
+    <name>hadoop.relaxed.worker.version.check</name>
+    <value>true</value>
+  </property>
 
   <property>
     <name>topology.script.file.name</name>
@@ -47,6 +52,12 @@
   <property>
     <name>fs.inmemory.size.mb</name>
     <value><%= node[:hadoop][:fs][:inmemory] %></value>
+  </property>
+
+  <property>
+    <!-- depend on ramfs for limits -->
+    <name>mapred.inmem.merge.threshold</name>
+    <value>0</value>
   </property>
 
 </configuration>

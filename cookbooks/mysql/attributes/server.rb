@@ -22,7 +22,7 @@ default[:mysql][:server][:bind_address] = "0.0.0.0"
 default[:mysql][:server][:skip_innodb] = false
 
 # Replication & Binary Log
-default[:mysql][:server][:server_id] = IPAddr.new(node[:primary_ipaddress]).to_i
+default[:mysql][:server][:server_id] = IPAddr.new(node[:ipaddress]).to_i
 default[:mysql][:server][:slave_enabled] = false
 default[:mysql][:server][:active_master] = false
 default[:mysql][:server][:log_bin] = true
@@ -35,7 +35,7 @@ default[:mysql][:server][:replicate_do_table] = false
 default[:mysql][:server][:slave_transaction_retries] = 10
 default[:mysql][:server][:auto_increment_increment] = 1
 default[:mysql][:server][:auto_increment_offset] = 1
-default[:mysql][:server][:binlog_format] = 'statement'
+default[:mysql][:server][:binlog_format] = 'row'
 
 # General Performance Options
 default[:mysql][:server][:table_open_cache] = "1024"

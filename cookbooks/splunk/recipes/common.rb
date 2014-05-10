@@ -10,7 +10,7 @@ end
 
 if splunk_master_node.nil? or splunk_master_node[:fqdn] == node[:fqdn]
   pass4symmkey = get_password("splunk/pass4symmkey")
-  node.set[:splunk][:pass4symmkey] = pass4symmkey
+  node.default[:splunk][:pass4symmkey] = pass4symmkey
 else
   pass4symmkey = splunk_master_node[:splunk][:pass4symmkey]
 end
@@ -89,6 +89,10 @@ template "/opt/splunk/etc/system/default/server.conf" do
     master: splunk_master_node,
     peers: splunk_peer_nodes,
   })
+end
+
+file "/opt/splunk/etc/system/local/server.conf" do
+  action :delete
 end
 
 execute "splunk-enable-boot" do

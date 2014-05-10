@@ -53,6 +53,7 @@ end
 # we don't want no motd
 file "/etc/motd" do
   action :delete
+  manage_symlink_source false
 end
 
 # make sure /etc/mtab always points to the right info
@@ -82,18 +83,11 @@ link "/run/lock" do
 end
 
 # wrapper for systemd/openrc/sysvinit abstraction
-file "/usr/local/bin/service" do
-  action :delete
-end
-
-file "/sbin/service" do
-  action :delete
-  only_if { File.symlink?("/sbin/service") }
-end
-
 cookbook_file "/sbin/service" do
   source "service.sh"
   owner "root"
   group "root"
   mode "0755"
+  manage_symlink_source false
+  force_unlink true if File.exist?("/sbin/service")
 end

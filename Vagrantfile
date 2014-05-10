@@ -1,44 +1,53 @@
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
+Vagrant.require_plugin "vagrant-systemd"
+Vagrant.require_plugin "vagrant-zentoo"
+Vagrant.require_plugin "vagrant-vbguest"
 
-def define(name, id)
-  Vagrant.configure("2") do |config|
-    config.vm.define name do |base|
-      _chef = nil
-      user = (ENV["USER"] || ENV["USERNAME"]).downcase.tr(" ", "-")
-      base.vm.hostname = "#{user}.#{name}.vagrantup.com"
-      base.vm.network "private_network", ip: "10.10.#{id/100}.#{id%100}/16"
-      if File.exist?("vagrant/provision/#{name}.sh")
-        base.vm.provision :shell, path: "vagrant/provision/#{name}.sh"
-      end
-      base.vm.provision :chef_solo do |chef|
-        _chef = chef
-        chef.binary_env = "LANG=en_US.UTF-8"
-        chef.cookbooks_path = ["cookbooks", "site-cookbooks"]
-        chef.data_bags_path = "databags"
-        chef.environments_path = "environments"
-        chef.environment = "staging"
-        chef.roles_path = "roles"
-      end
-      base.vm.provider "virtualbox" do |vb|
-        vb.gui = false
-        vb.customize ["modifyvm", :id, "--vrde", "on"]
-        vb.customize ["modifyvm", :id, "--vrdeport", id.to_s]
-        vb.customize ["modifyvm", :id, "--vrdeauthtype", "external"]
-      end
-      yield base.vm, _chef if block_given?
-      _chef.add_recipe('virtualbox::guest')
-      _chef.json = _chef.json.merge({
-        # vagrant has 10.0.2.15 on eth0 as a NAT device which cannot be
-        # reached from the host, so we add a private network and hard-code the
-        # primary_ipaddress here
-        primary_ipaddress: "10.10.#{id/100}.#{id%100}",
-        cluster: {
-          name: "vagrant",
-        },
-      })
-    end
-  end
+Dir[File.dirname(__FILE__) + "/.vagrant/support/*.rb"].each { |file| require file }
+
+define("zentoo-base", "10.10.10.2/24") do |vm, chef|
+  vm.box = "zentoo-amd64-base"
+  vm.box_url = "http://mirror.zenops.net/zentoo/amd64/zentoo-amd64-base.box"
+  chef.add_role("base")
 end
 
-Dir[File.dirname(__FILE__) + "/vagrant/machines/*.rb"].each { |file| require file }
+define("gentoo-base", "10.10.10.3/24") do |vm, chef|
+  vm.box = "gentoo-amd64-base"
+  vm.box_url = "http://mirror.zenops.net/gentoo/amd64/gentoo-amd64-base.box"
+  chef.add_role("base")
+end
+
+define("debian-base", "10.10.10.4/24") do |vm, chef|
+  vm.box = "debian-7.1.0-amd64-base"
+  vm.box_url = "http://mirror.zenops.net/debian/amd64/debian-7.1.0-amd64-base.box"
+  chef.add_role("base")
+end
+
+define("ubuntu-base", "10.10.10.5/24") do |vm, chef|
+  vm.box = "ubuntu-12.04.3-amd64-base"
+  vm.box_url = "http://mirror.zenops.net/ubuntu/amd64/ubuntu-12.04.3-amd64-base.box"
+  chef.add_role("base")
+end
+
+define("chef", "10.10.10.10/24") do |vm, chef|
+  vm.box = "ubuntu-12.04.3-amd64-base"
+  vm.box_url = "http://mirror.zenops.net/ubuntu/amd64/ubuntu-12.04.3-amd64-base.box"
+  chef.add_role("base")
+  chef.add_role("chef")
+end
+
+define("nagios", "10.10.10.11/24") do |vm, chef|
+  vm.box = "zentoo-amd64-base"
+  vm.box_url = "http://mirror.zenops.net/zentoo/amd64/zentoo-amd64-base.box"
+  chef.add_role("base")
+  chef.add_role("nagios")
+  chef.add_role("mx")
+end
+
+define("lab", "10.10.10.12/24") do |vm, chef|
+  vm.box = "zentoo-amd64-base"
+  vm.box_url = "http://mirror.zenops.net/zentoo/amd64/zentoo-amd64-base.box"
+  chef.add_role("base")
+  chef.add_role("gitlab")
+end
+
+# vim: ft=ruby

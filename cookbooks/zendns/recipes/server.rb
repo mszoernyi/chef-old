@@ -1,5 +1,5 @@
-node.set[:mongodb][:replication][:set] = "zendns"
-node.set[:mongodb][:bind_ip] = "0.0.0.0"
+node.default[:mongodb][:replication][:set] = "zendns"
+node.default[:mongodb][:bind_ip] = "0.0.0.0"
 
 include_recipe "mongodb::server"
 
@@ -12,9 +12,6 @@ template "/etc/powerdns/pdns.conf" do
   mode "0644"
   notifies :restart, "service[pdns]"
 end
-
-package "dev-ruby/madvertise-logging"
-package "dev-ruby/syslogger"
 
 cookbook_file "/usr/libexec/zendnspipe" do
   source "zendnspipe.rb"
@@ -37,10 +34,4 @@ end
 shorewall_rule "zendns-udp" do
   destport "domain"
   proto "udp"
-end
-
-if ganymed?
-  ganymed_collector 'zendns' do
-    source 'zendns.rb'
-  end
 end

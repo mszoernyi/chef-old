@@ -42,6 +42,14 @@ module PlatformHelpers
   def mac_os_x?
     node[:platform] == "mac_os_x"
   end
+
+  def vbox?
+    root? && File.read("/proc/modules") =~ /^vboxguest/
+  end
+
+  def lxc?
+    root? && File.read("/proc/1/environ").split("\0").any? { |env| env =~ /lxc/ }
+  end
 end
 
 include PlatformHelpers

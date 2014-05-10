@@ -12,6 +12,10 @@
     <name>dfs.data.dir</name>
     <value><%= node[:hadoop][:dfs][:data_dir] %></value>
   </property>
+  <property>
+    <name>dfs.datanode.du.reserved</name>
+    <value><%= node[:hadoop][:dfs][:reserved] %></value>
+  </property>
 
   <property>
     <name>dfs.permissions</name>
@@ -57,4 +61,10 @@
     <name>dfs.support.broken.append</name>
     <value>true</value>
   </property>
+
+  <property>
+    <name>dfs.datanode.balance.bandwidthPerSec</name>
+    <value>5242880</value>
+  </property>
+
 </configuration>

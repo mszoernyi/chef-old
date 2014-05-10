@@ -1,13 +1,11 @@
 include_recipe "ssh"
 
-node.set[:ssh][:server][:matches] = {}
-
 template "/etc/ssh/sshd_config" do
   source "sshd_config"
   owner "root"
   group "root"
   mode "0644"
-  notifies :restart, "service[sshd]"
+  notifies :reload, "service[sshd]"
 end
 
 systemd_unit "sshd.service"

@@ -3,11 +3,9 @@ if root?
     action :delete
   end
 
-  package "sys-apps/portage" do
-    action :upgrade
-  end
+  package "sys-apps/portage"
 
-  %w(eix elogv gentoolkit gentoolkit-dev portage-utils).each do |pkg|
+  %w(eix elogv gentoolkit portage-utils).each do |pkg|
     package "app-portage/#{pkg}"
   end
 
@@ -49,6 +47,7 @@ if root?
 
   file "/etc/make.profile" do
     action :delete
+    manage_symlink_source false
   end
 
   link "/etc/portage/make.profile" do
@@ -176,15 +175,6 @@ if root?
       owner "root"
       group "root"
       mode "0755"
-    end
-  end
-
-  if zenops_mirror_node
-    rsync_module "portage-packages" do
-      path "/usr/portage/packages"
-      hosts_allow zenops_mirror_node[:primary_ipaddress]
-      uid "nobody"
-      gid "nobody"
     end
   end
 end
