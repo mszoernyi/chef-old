@@ -4,14 +4,11 @@ FIGNORE=".o:~:CVS:.svn:.git:metadata.json"
 # give it some mem
 export JRUBY_OPTS="-J-Xmx24g -J-XX:MaxPermSize=1g"
 
+# chef helper
+alias chef="~/projects/chef/bin/chef"
 # project aliases
-alias pkk="cd ~/projects/own/kanbanero"
-alias pm="cd ~/projects/liquidm/platform"
-alias pmc="cd ~/projects/liquidm/chef"
-alias pms="cd ~/projects/liquidm/server"
-alias pzc="cd ~/projects/zenops/chef"
-alias pzz="cd ~/projects/zentoo/zentoo"
-alias pc="cd ~/projects/own/chef"
+alias pa="cd ~/projects/adjust/dashboard"
+alias pc="cd ~/projects/chef"
 
 # git aliases
 alias ga="git add -A"
@@ -27,7 +24,7 @@ alias gdc="git diff --cached"
 alias gl="git lg"
 alias gp="git pull"
 alias gpr="git pull --rebase"
-alias gpv="git push -f origin HEAD:vagrant/bene"
+alias gpv="git push -f origin HEAD:vagrant/mike"
 alias grh="git reset HEAD"
 alias s="git status"
 
@@ -56,12 +53,8 @@ remote_tmux() {
 	fi
 }
 
-function A() {
-	remote_tmux mike.adjust.com 9991
-}
-
 function Z() {
-	remote_tmux dev2.lqm.io 9991
+	remote_tmux mike.adjust.com 9991
 }
 
 repm() {
