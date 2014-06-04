@@ -1,6 +1,6 @@
 project_name: chef
 project_root: ~/projects/own/chef
-socket_path: /tmp/tmux-chef
+socket_path: /tmp/tmux
 windows:
   - console:
       - pwd

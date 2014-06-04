@@ -1,6 +1,6 @@
 project_name: dashboard
 project_root: ~/projects/adjust/dashboard
-socket_path: /tmp/tmux-dashboard
+socket_path: /tmp/tmux
 windows:
   - server: brs
   - editor:

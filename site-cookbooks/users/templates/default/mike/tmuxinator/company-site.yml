@@ -1,6 +1,6 @@
 project_name: company-site
 project_root: ~/projects/adjust/company-site/
-socket_path: /tmp/tmux-company-site
+socket_path: /tmp/tmux
 windows:
   - server: jekyll serve -w
   - editor:
