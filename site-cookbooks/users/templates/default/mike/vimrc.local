@@ -294,6 +294,6 @@ vmap <silent> <leader>su :sort u<cr>
 nnoremap <silent> <leader>rad Orequire 'ruby-debug'; debugger<esc>
 " }}}
 
-
+NeoBundle 'christoomey/vim-tmux-navigator'
 
 " vim: ft=vim

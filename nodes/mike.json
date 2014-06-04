@@ -17,6 +17,7 @@
   "run_list": [
     "role[workstation]",
     "recipe[tmuxinator]",
+    "recipe[nodejs]",
     "recipe[mac::1password]",
     "recipe[mac::dash]",
     "recipe[mac::drive]",
