@@ -1,0 +1,15 @@
+project_name: company-site
+project_root: ~/projects/adjust/company-site/
+socket_path: /tmp/tmux-company-site
+windows:
+  - server: jekyll serve -w
+  - editor:
+      layout: f98d,230x59,0,0[230x40,0,0,0,230x18,0,41,4]
+      panes:
+        - vim
+        - #empty
+  - console:
+      layout: even-vertical
+      panes:
+        - #empty
+        - #empty
