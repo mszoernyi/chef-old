@@ -8,7 +8,7 @@ export JRUBY_OPTS="-J-Xmx24g -J-XX:MaxPermSize=1g"
 alias chef="~/projects/chef/bin/chef"
 # project aliases
 alias pa="cd ~/projects/adjust/dashboard"
-alias pc="cd ~/projects/chef"
+alias pc="cd ~/projects/own/chef"
 
 # git aliases
 alias ga="git add -A"

@@ -16,17 +16,13 @@
   },
   "run_list": [
     "role[workstation]",
+    "recipe[tmuxinator]",
     "recipe[mac::1password]",
-    "recipe[mac::android]",
-    "recipe[mac::calibre]",
-    "recipe[mac::cleanmymac]",
     "recipe[mac::dash]",
     "recipe[mac::drive]",
     "recipe[mac::istatmenus]",
-    "recipe[mac::skitch]",
     "recipe[mac::skype]",
     "recipe[mac::spotify]",
-    "recipe[mac::teamviewer]",
     "recipe[mac::tunnelblick]",
     "recipe[mac::unarchiver]"
   ]
