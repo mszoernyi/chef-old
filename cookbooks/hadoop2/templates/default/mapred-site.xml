@@ -61,7 +61,7 @@
   </property>
   <property>
     <name>mapreduce.reduce.java.opts</name>
-    <value>-server -XX:+UseConcMarkSweepGC -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Xmx4g -Djava.io.tmpdir=<%= node[:hadoop2][:java_tmp] %></value>
+    <value>-server -XX:+UseConcMarkSweepGC -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Xmx8g -Djava.io.tmpdir=<%= node[:hadoop2][:java_tmp] %></value>
   </property>
 
   <property>

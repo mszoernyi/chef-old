@@ -64,12 +64,18 @@ namespace :node do
   end
 
   desc "Bootstrap the specified node"
-  task :bootstrap, :fqdn, :ipaddress do |t, args|
+  task :bootstrap, :fqdn, :ipaddress, :password do |t, args|
+    args.with_defaults(password: "tux")
     ENV['BATCH'] = "1"
     ENV['DISTRO'] ||= "gentoo"
+    # TODO: consolidate DNS tasks
+    hetzner_server_name_rdns(args.ipaddress, args.fqdn)
+    zendns_add_record(args.fqdn, args.ipaddress)
     run_task('node:checkdns', args.fqdn, args.ipaddress)
     run_task('ssl:do_cert', args.fqdn)
-    knife :bootstrap, [args.fqdn, "--distro", ENV['DISTRO'], "-P", "tux", "-r", "role[base]"]
+    knife :upload, ["cookbooks/certificates"]
+    key = File.join(TOPDIR, "tasks/support/id_rsa")
+    sh("knife bootstrap #{args.fqdn} --distro #{ENV['DISTRO']} -P #{args.password} -r 'role[base]' -E production -i #{key}")
     run_task('node:updateworld', args.fqdn) unless ENV['NO_UPDATEWORLD']
   end
 

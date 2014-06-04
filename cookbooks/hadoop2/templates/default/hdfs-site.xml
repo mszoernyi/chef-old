@@ -106,7 +106,7 @@
   </property>
   <property>
     <name>dfs.datanode.balance.bandwidthPerSec</name>
-    <value>5242880</value>
+    <value>20971520</value>
   </property>
   <property>
     <name>dfs.namenode.handler.count</name>
@@ -115,5 +115,13 @@
   <property>
     <name>dfs.datanode.handler.count</name>
     <value>40</value>
+  </property>
+  <property>
+    <name>dfs.datanode.du.reserved</name>
+    <value><%= node[:hadoop2][:du][:reserved] %></value>
+  </property>
+  <property>
+    <name>dfs.hosts.exclude</name>
+    <value>/etc/hadoop2/dfs.hosts.exclude</value>
   </property>
 </configuration>

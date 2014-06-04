@@ -47,7 +47,7 @@ end
   end
 end
 
-src_tar = "http://www.eu.apache.org/dist/hadoop/common/hadoop-#{node[:hadoop2][:version]}/hadoop-#{node[:hadoop2][:version]}-src.tar.gz"
+src_tar = "http://www.us.apache.org/dist/hadoop/common/hadoop-#{node[:hadoop2][:version]}/hadoop-#{node[:hadoop2][:version]}-src.tar.gz"
 src_dir = "/var/app/hadoop2/releases/hadoop-#{node[:hadoop2][:version]}-src"
 release_dir = "#{src_dir}/hadoop-dist/target/hadoop-#{node[:hadoop2][:version]}"
 
@@ -103,6 +103,13 @@ end
     group "hadoop2"
     mode "0644"
   end
+end
+
+template "/etc/hadoop2/dfs.hosts.exclude" do
+  source "dfs.hosts.exclude"
+  owner "root"
+  group "hadoop2"
+  mode "0644"
 end
 
 systemd_unit "hdfs@.service"
