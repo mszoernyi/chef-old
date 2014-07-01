@@ -212,33 +212,33 @@ vmap <leader>a<Bar> :Tabularize /<Bar><CR>
 " {{{ completion
 " neocomplete provides keyword completion system by maintaining a cache of
 " keywords in the current buffer.
-NeoBundle 'Shougo/neocomplete.vim'
-let g:neocomplete#enable_at_startup = 1
-let g:neocomplete#enable_smart_case = 1
-let g:neocomplete#enable_auto_delimiter = 1
-let g:neocomplete#max_list = 15
-let g:neocomplete#force_overwrite_completefunc = 1
+"NeoBundle 'Shougo/neocomplete.vim'
+"let g:neocomplete#enable_at_startup = 1
+"let g:neocomplete#enable_smart_case = 1
+"let g:neocomplete#enable_auto_delimiter = 1
+"let g:neocomplete#max_list = 15
+"let g:neocomplete#force_overwrite_completefunc = 1
 
 " tab completion
-inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<TAB>"
+"inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
+"inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<TAB>"
 
 " Define keyword.
-if !exists('g:neocomplete#keyword_patterns')
-  let g:neocomplete#keyword_patterns = {}
-endif
-let g:neocomplete#keyword_patterns['default'] = '\h\w*'
+"if !exists('g:neocomplete#keyword_patterns')
+"  let g:neocomplete#keyword_patterns = {}
+"endif
+"let g:neocomplete#keyword_patterns['default'] = '\h\w*'
 
-" Enable heavy omni completion.
-if !exists('g:neocomplete#sources#omni#input_patterns')
-  let g:neocomplete#sources#omni#input_patterns = {}
-endif
-let g:neocomplete#sources#omni#input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
-let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
-let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
-let g:neocomplete#sources#omni#input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-let g:neocomplete#sources#omni#input_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
-let g:neocomplete#sources#omni#input_patterns.python = '[^. \t]\.\w*'
+"" Enable heavy omni completion.
+"if !exists('g:neocomplete#sources#omni#input_patterns')
+"  let g:neocomplete#sources#omni#input_patterns = {}
+"endif
+"let g:neocomplete#sources#omni#input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
+"let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
+"let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+"let g:neocomplete#sources#omni#input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+"let g:neocomplete#sources#omni#input_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
+"let g:neocomplete#sources#omni#input_patterns.python = '[^. \t]\.\w*'
 " }}}
 
 " {{{ key mappings
@@ -305,4 +305,11 @@ noremap <Left> <NOP>
 noremap <Right> <NOP>
 " }}}
 
+NeoBundle 'wesQ3/vim-windowswap'
+
+NeoBundle 'burnettk/vim-angular'
+NeoBundle 'othree/javascript-libraries-syntax.vim'
+let g:used_javascript_libs = 'underscore,jquery,angularjs,jasmine'
+
+NeoBundle 'burnettk/vim-angular'
 " vim: ft=vim
