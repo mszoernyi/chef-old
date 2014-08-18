@@ -53,6 +53,11 @@ remote_tmux() {
 	fi
 }
 
+function T () {
+    mux dashboard
+}
+
+
 function Z() {
 	remote_tmux mike.adjust.com 9991
 }
