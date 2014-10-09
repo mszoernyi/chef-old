@@ -312,4 +312,8 @@ NeoBundle 'othree/javascript-libraries-syntax.vim'
 let g:used_javascript_libs = 'underscore,jquery,angularjs,jasmine'
 
 NeoBundle 'burnettk/vim-angular'
+
+nmap t% :tabedit %<CR>
+nmap td :tabclose<CR>
+
 " vim: ft=vim
