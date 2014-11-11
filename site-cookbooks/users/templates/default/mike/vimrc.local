@@ -16,12 +16,22 @@ set wildmode=full
 " reload files changed outside of vim
 set autoread
 
-" use hidden buffers and write on quit
+" do not keep hidden buffers
 set hidden
+autocmd BufReadPost * set bufhidden=delete
+
+" write on quit
 set autowriteall
 
 " no backup files (we have git after all)
 set nobackup
+
+""
+"" Backup and swap files
+""
+set backupdir=~/.vim/backup//
+set directory=~/.vim/swap//
+set undodir=~/.vim/undo//
 
 " highlight current line
 set cursorline
@@ -58,6 +68,16 @@ autocmd BufNewFile,BufRead *.coffee set filetype=coffee
 NeoBundle 'heartsentwined/vim-emblem'
 autocmd BufNewFile,BufRead *.emblem set filetype=emblem
 autocmd FileType emblem set tabstop=2|set shiftwidth=2|set expandtab
+
+NeoBundle 'heartsentwined/vim-ember-script'
+autocmd BufNewFile,BufRead *.em set filetype=ember-script
+autocmd FileType ember-script set tabstop=2|set shiftwidth=2|set expandtab
+
+" Golang support
+NeoBundle 'hollow/vim-go'
+au FileType go nmap gd <Plug>(go-def-split)
+au FileType go nmap <Leader>gd <Plug>(go-doc)
+let $GOPATH = getcwd() . "/.vendor:~/.go"
 
 " recognize AppleScript syntax
 NeoBundle 'vim-scripts/applescript.vim'
@@ -321,5 +341,28 @@ NeoBundle 'sjl/vitality.vim'
 let g:vitality_always_assume_iterm = 1
 au BufLeave,FocusLost * silent! update
 set timeoutlen=1000 ttimeoutlen=0
+
+" close with Ctrl-C
+nmap <C-c> :w<cr><C-W><C-C>
+imap <C-c> <esc>:w<cr><C-W><C-C>
+
+" A vim plugin that simplifies the transition between multiline and
+" single-line code
+NeoBundle 'AndrewRadev/splitjoin.vim'
+function! s:try(cmd, default)
+  if exists(':' . a:cmd) && !v:count
+    let tick = b:changedtick
+    exe a:cmd
+    if tick == b:changedtick
+      execute 'normal! '.a:default
+    endif
+  else
+    execute 'normal! '.v:count.a:default
+  endif
+endfunction
+nnoremap <silent> J :<C-U>call <SID>try('SplitjoinJoin', 'J')<CR>
+nnoremap <silent> S :<C-U>call <SID>try('SplitjoinSplit', 'S')<CR>
+
+NeoBundle 'editorconfig/editorconfig-vim'
 
 " vim: ft=vim

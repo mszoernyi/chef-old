@@ -54,12 +54,12 @@ remote_tmux() {
 }
 
 function T () {
-    mux dashboard
+    mux remerge
 }
 
 
 function Z() {
-	remote_tmux mike.adjust.com 9991
+	remote_tmux mike.dev.zenops.net 9991
 }
 
 repm() {
