@@ -12,19 +12,19 @@
       "bookmarks": {
         "cafe": "sftp://mike@5.9.82.157/home/space"
       }
-    }
+    },
+    "tags": [
+
+    ]
   },
   "run_list": [
     "role[workstation]",
     "recipe[tmuxinator]",
     "recipe[nodejs]",
-    "recipe[mac::1password]",
-    "recipe[mac::dash]",
     "recipe[mac::drive]",
     "recipe[mac::istatmenus]",
     "recipe[mac::skype]",
     "recipe[mac::spotify]",
-    "recipe[mac::tunnelblick]",
-    "recipe[mac::unarchiver]"
+    "recipe[mac::tunnelblick]"
   ]
 }

@@ -11,4 +11,3 @@ supports "gentoo"
 
 depends "cron"
 depends "nagios"
-depends "splunk6"

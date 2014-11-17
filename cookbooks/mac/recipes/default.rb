@@ -10,9 +10,7 @@ if mac_os_x?
 
   # need to upgrade this one as early as possible or dircolors will break
   package "xz"
-  package "coreutils" do
-    action :upgrade
-  end
+  package "coreutils"
 
   # install base packages
   node[:mac][:packages].each do |pkg|

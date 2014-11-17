@@ -10,4 +10,3 @@ supports "gentoo"
 
 depends "account"
 depends "rvm"
-depends "splunk6"
