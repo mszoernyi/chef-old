@@ -11,6 +11,8 @@ include_recipe "nagios::nrpe"
 include_recipe "nagios::nsca"
 include_recipe "nagios::splunk"
 
+package "net-analyzer/mk-livestatus"
+
 directory "/var/nagios/rw" do
   owner "nagios"
   group "nginx"
@@ -32,8 +34,10 @@ template "/usr/lib/nagios/plugins/notify" do
   mode "0750"
 end
 
+nagios_plugin "check_aggregate"
+
 # retrieve data from the search index
-contacts = node.run_state[:users].select do |u|
+contacts = node.users.select do |u|
   u[:tags] and not (u[:tags] & ["hostmaster", "nagios"]).empty?
 end.sort_by do |u|
   u[:id]
@@ -59,49 +63,36 @@ end
 
 vhosts = hosts.map do |h|
   h[:nagios][:vhosts] rescue []
-end.flatten.compact.map do |v|
+end.flatten.compact.sort.uniq.map do |vhost|
   Chef::Node.new.tap do |n|
     n.chef_environment "production"
-    n.default[:fqdn] = v[:name]
-    n.default[:ipaddress] = v[:name]
+    n.default[:fqdn] = vhost
+    n.default[:ipaddress] = vhost
     n.default[:virtualization] = {}
     n.default[:nagios][:services] = {}
     add_services_for_vhost(n)
   end
 end
 
-hosts = (vhosts + hosts).sort_by do |n|
+hosts = (vhosts + hosts.to_a).sort_by do |n|
   n[:fqdn]
 end
 
 # build hostgroups
-hostgroups = {}
+hostgroups = Hash.new do |hsh, key|
+  hsh[key] = []
+end
 
 hosts.each do |h|
   # group per cluster
-  cluster = h.cluster_name
+  cluster = h.cluster_domain
+  hostgroups[cluster] << h[:fqdn] if !cluster.nil?
 
-  hostgroups[cluster] ||= []
-  hostgroups[cluster] << h[:fqdn]
-
-  # group per role (except base)
-  h.default[:roles] ||= []
-  h[:roles].each do |r|
-    next if r == "base"
-    hostgroups[r] ||= []
+  # group per role
+  (h[:roles] || []).each do |r|
+    next if %w(base c500k smc).include?(r)
+    next if r == h.cluster_name
     hostgroups[r] << h[:fqdn]
-  end
-end
-
-# build service groups
-servicegroups = []
-hosts.each do |h|
-  next unless h[:nagios]
-  next unless h[:nagios][:services]
-  h[:nagios][:services].each do |name, params|
-    if params[:servicegroups]
-      servicegroups |= params[:servicegroups].split(",")
-    end
   end
 end
 
@@ -144,7 +135,7 @@ nagios_conf "hostgroups" do
 end
 
 nagios_conf "servicegroups" do
-  variables :servicegroups => servicegroups
+  variables :hosts => hosts
 end
 
 hosts.each do |host|

@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+
+require 'nagios'
+require 'set'
+
+Class.new(Nagios::Plugin) do
+  def initialize
+    super
+
+    @code = 0
+    @hosts = []
+
+    @config.options.on('-s', '--scope=NAME',
+      'scope name') { |scope| @scope = scope }
+    @config.options.on('-C', '--code=INT',
+      'status code') { |code| @code = code }
+    @config.options.on('-H', '--hosts=HOSTS',
+                       'comma separated list of hosts') { |hosts| @hosts = hosts.split(',') }
+
+    @config.parse!
+    raise "No scope given" unless @scope
+  end
+
+  def warning(m)
+    m > threshold(:warning).to_f
+  end
+
+  def critical(m)
+    m > threshold(:critical).to_f
+  end
+
+  def to_s(m)
+    "#{(m * 100).round(0)}% affected not_ok=#{@not_ok} ok=#{@ok}"
+  end
+
+  def measure
+    scope = ->(section) { section =~ Regexp.new(@scope, Regexp::MULTILINE) }
+    @services = Nagios::Status.new("/var/nagios/status.dat", include_ok: true, scope: scope).items
+
+    if !@hosts.empty?
+      @services.select! do |service|
+        @hosts.include?(service[:host_name])
+      end
+    end
+
+    @not_ok = @services.select { |item| item[:current_state] != @code }
+    @not_ok.map!(&:host_name)
+    @ok = (Set.new(@services.map(&:host_name)) - Set.new(@not_ok)).to_a
+    return 0.0 if @services.empty?
+    @not_ok.count.to_f / @services.count.to_f
+  end
+end.run!

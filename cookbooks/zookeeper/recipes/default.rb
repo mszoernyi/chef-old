@@ -2,6 +2,13 @@ include_recipe "java"
 
 if gentoo?
   package "sys-cluster/zookeeper"
+
+  file "/usr/bin/zk" do
+    content "#!/bin/bash\nexec /opt/zookeeper/bin/zkCli.sh \"$@\"\n"
+    owner "root"
+    group "root"
+    mode "0755"
+  end
 elsif mac_os_x?
   package "zookeeper"
 end
@@ -18,8 +25,6 @@ if root? or mac_os_x?
     mode "0644"
     notifies :restart, "service[zookeeper]"
   end
-
-  include_recipe "base"
 
   template "#{node[:zookeeper][:confdir]}/zoo.cfg" do
     source "zoo.cfg"
@@ -45,13 +50,9 @@ if root? or mac_os_x?
     only_if { root? }
   end
 
-  cron "zk-log-clean" do
-    action :delete
-  end
-
   systemd_timer "zookeeper-cleanup" do
     schedule %w(OnCalendar=3:00)
-    unit(command: "/opt/zookeeper/bin/zkCleanup.sh /var/lib/zookeeper/ -n 5")
+    unit(command: "#{node[:zookeeper][:bindir]}/zkCleanup.sh #{node[:zookeeper][:datadir]} -n 5")
   end
 end
 
@@ -66,6 +67,11 @@ if nagios_client?
 
   nagios_service "ZOOKEEPER-STATUS" do
     check_command "check_nrpe!check_zookeeper_status"
+    servicegroups "zookeeper"
+  end
+
+  nagios_cluster_service "ZOOKEEPER" do
+    check_command "check_aggregate!ZOOKEEPER-STATUS!0.1!0.3!-H #{zookeeper_nodes.map(&:fqdn).join(',')}"
     servicegroups "zookeeper"
   end
 
@@ -91,7 +97,7 @@ if nagios_client?
   {
     :connections => [2000, 3000],
     :watches => [100000, 200000],
-    :latency => [1000, 2000],
+    :latency => [100, 200],
     :requests => [20, 50],
     :files => [2048, 4096],
   }.each do |mode, threshold|

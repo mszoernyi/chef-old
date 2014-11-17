@@ -16,5 +16,21 @@ class Chef
       end
     end
 
+    def cluster_domain
+      if self[:cluster] and self[:cluster][:domain]
+        self[:cluster][:domain]
+      else
+        nil
+      end
+    end
+
+    def clustered?
+      cluster_name != self[:fqdn]
+    end
+
+    def cluster?(name)
+      name ? cluster_name == name : true
+    end
+
   end
 end

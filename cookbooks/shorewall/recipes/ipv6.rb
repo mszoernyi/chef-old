@@ -5,11 +5,6 @@ elsif debian_based?
   package "shorewall6"
 end
 
-execute "shorewall6-restart" do
-  command "/sbin/shorewall6 -q restart"
-  action :nothing
-end
-
 directory "/etc/shorewall6" do
   owner "root"
   group "root"
@@ -21,7 +16,7 @@ template "/etc/shorewall6/shorewall6.conf" do
   owner "root"
   group "root"
   mode "0600"
-  notifies :run, "execute[shorewall6-restart]"
+  notifies :restart, "service[shorewall6]"
 end
 
 %w(
@@ -37,7 +32,7 @@ end
     owner "root"
     group "root"
     mode "0600"
-    notifies :run, "execute[shorewall6-restart]"
+    notifies :restart, "service[shorewall6]"
   end
 end
 
@@ -48,8 +43,6 @@ end
 service "shorewall6" do
   action [:enable, :start]
 end
-
-splunk_input "monitor:///var/log/shorewall6-init.log"
 
 if nagios_client?
   sudo_rule "nagios-shorewall6" do
@@ -66,7 +59,7 @@ if nagios_client?
 
   nagios_service "SHOREWALL6" do
     check_command "check_nrpe!check_shorewall6"
-    servicegroups "system"
+    servicegroups "network"
     env [:testing, :development]
   end
 end

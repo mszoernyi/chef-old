@@ -1,0 +1,10 @@
+shards: 1
+
+scan:
+  window: 36
+
+zookeeper:
+  uri: <%= zookeeper_connect(node[:druid][:zookeeper][:root], node[:druid][:cluster]) %>
+
+druid:
+  discovery_path: <%= node[:druid][:zookeeper][:discovery] %>

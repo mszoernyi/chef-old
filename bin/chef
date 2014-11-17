@@ -13,6 +13,7 @@ fi
 
 # load configuration & run list
 node_name=$1
+shift || :
 
 if [[ -z ${node_name} ]]; then
 	if [[ $USER == "root" ]]; then
@@ -77,12 +78,12 @@ if ! type -P chef-client >/dev/null; then
 fi
 
 # load rvm if available
-if [[ -e ~/.rvm/scripts/rvm ]]; then
+if [[ -z ${rvm_path} && -e ~/.rvm/scripts/rvm ]]; then
 	source ~/.rvm/scripts/rvm
 fi
 
 echo ">>> Running Chef ..."
-$bundle_exec chef-client -z -c .chef/config.rb -N ${node_name} ${chef_args} || exit 1
+$bundle_exec chef-client -z -c ${PWD}/.chef/config.rb -N ${node_name} ${chef_args} "$@" || exit 1
 
 # re-enable sudo password on mac
 if [[ $USER != "root" ]]; then

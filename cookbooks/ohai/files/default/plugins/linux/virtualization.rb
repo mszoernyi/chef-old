@@ -25,6 +25,15 @@ Ohai.plugin(:Virtualization) do
     # if it is possible to detect paravirt vs hardware virt, it should be put in
     # virtualization[:mechanism]
 
+    # NOTE: since pretty much every linux is a LXC host, we check it first, so
+    # that other virtualization systems may override it
+    if File.exists?("/proc/self/cgroup")
+      if File.read("/proc/self/cgroup") =~ %r{\d:[^:]+:/$}
+        virtualization[:system] = "lxc"
+        virtualization[:role] = "host"
+      end
+    end
+
     ## Xen
     # /proc/xen is an empty dir for EL6 + Linode Guests
     if File.exists?("/proc/xen")
@@ -145,14 +154,13 @@ Ohai.plugin(:Virtualization) do
     #
     # Full notes, https://tickets.opscode.com/browse/OHAI-551
     # Kernel docs, https://www.kernel.org/doc/Documentation/cgroups
+    #
     if File.exists?("/proc/self/cgroup")
       if File.read("/proc/self/cgroup") =~ %r{^\d+:[^:]+:/(lxc|docker)/.+$}
         virtualization[:system] = "lxc"
         virtualization[:role] = "guest"
-      elsif File.read("/proc/self/cgroup") =~ %r{\d:[^:]+:/$}
-        virtualization[:system] = "lxc"
-        virtualization[:role] = "host"
       end
     end
+
   end
 end

@@ -2,7 +2,13 @@
 # SERVICEGROUPS.CFG - SERVICE GROUP OBJECTS
 ###############################################################################
 
-<% @servicegroups.sort.each do |sg| %>
+<%
+servicegroups = @hosts.map do |h|
+  h[:nagios][:services].map do |name, params|
+    (params[:servicegroups] || "other").split(",")
+  end
+end.flatten.compact.sort.uniq.each do |sg|
+%>
 define servicegroup {
   servicegroup_name <%= sg %>
   alias <%= sg %>

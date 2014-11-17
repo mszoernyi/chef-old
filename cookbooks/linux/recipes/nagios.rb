@@ -3,7 +3,7 @@ if nagios_client?
 
   nagios_service "PING" do
     check_command "check_ping!250.0,20%!500.0,60%"
-    servicegroups "system"
+    servicegroups "network"
     env [:staging, :testing, :development]
   end
 
@@ -27,14 +27,29 @@ if nagios_client?
     env [:staging, :testing, :development]
   end
 
+  containers = %x(lxc-ls).chomp.split.length rescue 0
+  procs_max = 1024 * (containers + 1)
+
   nrpe_command "check_total_procs" do
-    command "/usr/lib/nagios/plugins/check_procs -w 512 -c 1024"
+    command "/usr/lib/nagios/plugins/check_procs -w #{procs_max/2} -c #{procs_max}"
   end
 
   nagios_service "PROCS" do
     check_command "check_nrpe!check_total_procs"
     servicegroups "system"
     env [:staging]
+  end
+
+  nagios_plugin "check_open_files"
+
+  nrpe_command "check_open_files" do
+    command "/usr/lib/nagios/plugins/check_open_files -w 75 -c 90"
+  end
+
+  nagios_service "OPEN-FILES" do
+    check_command "check_nrpe!check_open_files"
+    servicegroups "system"
+    env [:staging, :testing, :development]
   end
 
   nagios_plugin "check_mem"
@@ -111,7 +126,7 @@ if nagios_client?
 
   nagios_service "LINK" do
     check_command "check_nrpe!check_link_usage"
-    servicegroups "system"
+    servicegroups "network"
     check_interval 10
     env [:staging, :testing, :development]
   end

@@ -26,8 +26,18 @@ define command {
 }
 
 define command {
+  command_name check_aggregate
+  command_line $USER1$/check_aggregate -s 'service_description=$ARG1$$' -w $ARG2$ -c $ARG3$ $ARG4$
+}
+
+define command {
   command_name check_ping
   command_line $USER1$/check_ping -H $HOSTADDRESS$ -w $ARG1$ -c $ARG2$ -p 5
+}
+
+define command {
+  command_name check_tcp
+  command_line $USER1$/check_tcp -H $HOSTADDRESS$ -p $ARG1$ $ARG2$
 }
 
 define command {
@@ -40,7 +50,6 @@ define command {
   command_line $USER1$/check_http -H $HOSTADDRESS$ $ARG1$
 }
 
-# TODO: these should be defined in cookbooks
 define command {
   command_name check_ssh
   command_line $USER1$/check_ssh -p $ARG1$ $HOSTADDRESS$
@@ -54,4 +63,9 @@ define command {
 define command {
   command_name check_splunk
   command_line $USER1$/check_splunk "$ARG1$"
+}
+
+define command {
+  command_name check_jmx
+  command_line $USER1$/check_jmx -vvvv -U service:jmx:rmi:///jndi/rmi://$HOSTADDRESS$:$ARG1$/jmxrmi -O '$ARG2$' -A '$ARG3$' $ARG4$
 }

@@ -1,0 +1,15 @@
+{
+  "name": "camus",
+  "default_attributes": {
+    "camus": {
+      "topics": [
+        "metrics"
+      ]
+    }
+  },
+  "run_list": [
+    "role[base]",
+    "recipe[hadoop2]",
+    "recipe[camus]"
+  ]
+}

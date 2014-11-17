@@ -4,9 +4,6 @@ package "app-arch/snappy"
 package "dev-libs/protobuf"
 package "dev-java/ant-core"
 
-node.default[:hadoop2][:cluster] = node.cluster_name
-node.default[:hadoop2][:zk][:cluster] = node.cluster_name
-
 deploy_skeleton "hadoop2"
 
 %w(
@@ -47,47 +44,6 @@ end
   end
 end
 
-src_tar = "http://www.us.apache.org/dist/hadoop/common/hadoop-#{node[:hadoop2][:version]}/hadoop-#{node[:hadoop2][:version]}-src.tar.gz"
-src_dir = "/var/app/hadoop2/releases/hadoop-#{node[:hadoop2][:version]}-src"
-release_dir = "#{src_dir}/hadoop-dist/target/hadoop-#{node[:hadoop2][:version]}"
-
-tar_extract src_tar do
-  target_dir "/var/app/hadoop2/releases"
-  creates src_dir
-  user "hadoop2"
-  group "hadoop2"
-end
-
-execute "hadoop2-build" do
-  not_if do
-    File.exists?(release_dir)
-  end
-
-  command "/bin/bash -l -c 'mvn clean package -Pdist,native -Drequire.snappy -DskipTests'"
-  cwd src_dir
-  user "hadoop2"
-  group "hadoop2"
-end
-
-link "/var/app/hadoop2/current" do
-  to release_dir
-end
-
-template "#{release_dir}/libexec/hadoop-layout.sh" do
-  source "hadoop-layout.sh"
-  owner "root"
-  group "hadoop2"
-  mode "0755"
-end
-
-execute "remove-local-etc" do
- only_if do
-   File.exists?("#{release_dir}/etc")
- end
-
- command "rm -rf #{release_dir}/etc"
-end
-
 %w{
   log4j.properties
   hdfs-site.xml
@@ -115,3 +71,69 @@ end
 systemd_unit "hdfs@.service"
 systemd_unit "yarn@.service"
 systemd_unit "mapred@.service"
+
+src_tar = "http://archive.apache.org/dist/hadoop/common/hadoop-#{node[:hadoop2][:version]}/hadoop-#{node[:hadoop2][:version]}-src.tar.gz"
+src_dir = "/var/app/hadoop2/releases/hadoop-#{node[:hadoop2][:version]}-src"
+release_dir = "#{src_dir}/hadoop-dist/target/hadoop-#{node[:hadoop2][:version]}"
+
+tar_extract src_tar do
+  target_dir "/var/app/hadoop2/releases"
+  creates src_dir
+  user "hadoop2"
+  group "hadoop2"
+end
+
+execute "hadoop2-build" do
+  command "/bin/bash -l -c 'mvn clean package -Pdist,native -Drequire.snappy -DskipTests -Dmaven.javadoc.skip=true'"
+  user "hadoop2"
+  group "hadoop2"
+  cwd src_dir
+  not_if { File.exists?(release_dir) }
+end
+
+template "#{release_dir}/libexec/hadoop-layout.sh" do
+  source "hadoop-layout.sh"
+  owner "root"
+  group "hadoop2"
+  mode "0755"
+end
+
+directory "#{release_dir}/etc" do
+  action :delete
+  recursive true
+end
+
+link "/var/app/hadoop2/current" do
+  to release_dir
+end
+
+template "/etc/env.d/98hadoop2" do
+  source "98hadoop2"
+  owner "root"
+  group "root"
+  mode 0644
+  notifies :run, 'execute[env-update]'
+end
+
+include_recipe "zookeeper::ruby"
+
+ruby_block "hadoop-zk-chroot" do
+  block do
+    Gem.clear_paths
+    require 'zk'
+    zk = ZK.new(zookeeper_connect('/hadoop2', node[:hadoop2][:zookeeper][:cluster]))
+    [
+      "/ha",
+      "/ha/#{node[:hadoop2][:hdfs][:cluster]}",
+      "/rmstore",
+      "/rmstore/#{node[:hadoop2][:yarn][:cluster]}",
+    ].each do |path|
+      zk.create(path, ignore: :node_exists)
+    end
+  end
+end
+
+nagios_plugin "check_hdfs"
+nagios_plugin "check_hdfs_namenode_ha"
+nagios_plugin "check_mapred"
+nagios_plugin "check_yarn"

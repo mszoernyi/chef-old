@@ -1,35 +1,29 @@
-require 'set'
-
 include_recipe "druid"
 
-systemd_unit "druid-coordinator.service" do
-  template "druid-service"
-  variables({
-    druid_service: "druid-coordinator",
-  })
-
-  notifies :restart, "service[druid-coordinator]", :immediately
+mysql_database "druid" do
+  connection mysql_master_connection(node[:druid][:cluster])
 end
 
-template "/usr/libexec/druid-coordinator" do
-  source "druid-runner.sh"
+template "/var/app/druid/bin/druid-coordinator" do
+  source "runner.sh"
   owner "root"
   group "root"
   mode "0755"
-  variables({
-    druid_service:  "coordinator",
-    druid_port:     node[:druid][:coordinator][:port],
-    druid_mx:       node[:druid][:coordinator][:mx],
-    druid_dm:       node[:druid][:coordinator][:dm],
-  })
+  notifies :restart, "service[druid-coordinator]"
+  variables service: "coordinator"
+end
 
-  notifies :restart, "service[druid-coordinator]", :immediately
+systemd_unit "druid-coordinator.service" do
+  template "druid.service"
+  notifies :restart, "service[druid-coordinator]"
 end
 
 service "druid-coordinator" do
   action [:enable, :start]
-  subscribes :restart, "template[/etc/druid/runtime.properties]"
   subscribes :restart, "template[/etc/druid/log4j.properties]"
+  subscribes :restart, "template[/etc/druid/runtime.properties]"
+  subscribes :restart, "template[/var/app/druid/bin/druid-coordinator]"
+  subscribes :restart, "systemd_unit[druid-coordinator]"
 end
 
 if nagios_client?
