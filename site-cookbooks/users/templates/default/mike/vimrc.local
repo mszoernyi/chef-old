@@ -74,10 +74,10 @@ autocmd BufNewFile,BufRead *.em set filetype=ember-script
 autocmd FileType ember-script set tabstop=2|set shiftwidth=2|set expandtab
 
 " Golang support
-NeoBundle 'hollow/vim-go'
-au FileType go nmap gd <Plug>(go-def-split)
-au FileType go nmap <Leader>gd <Plug>(go-doc)
-let $GOPATH = getcwd() . "/.vendor:~/.go"
+"NeoBundle 'hollow/vim-go'
+"au FileType go nmap gd <Plug>(go-def-split)
+"au FileType go nmap <Leader>gd <Plug>(go-doc)
+"let $GOPATH = getcwd() . "/.vendor:~/.go"
 
 " recognize AppleScript syntax
 NeoBundle 'vim-scripts/applescript.vim'
