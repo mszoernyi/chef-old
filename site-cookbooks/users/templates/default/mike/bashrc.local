@@ -7,23 +7,18 @@ export JRUBY_OPTS="-J-Xmx24g -J-XX:MaxPermSize=1g"
 # chef helper
 alias chef="~/projects/chef/bin/chef"
 # project aliases
-alias pa="cd ~/projects/adjust/dashboard"
 alias pc="cd ~/projects/own/chef"
 
 # git aliases
 alias ga="git add -A"
 alias gap="git add -p"
 alias gb="git blame"
-alias gcl="git checkout live"
 alias gcm="git checkout master"
-alias gcn="git checkout next"
-alias gcu="git checkout upstream"
 alias gdm="git diff master"
 alias gd="git diff"
 alias gdc="git diff --cached"
 alias gl="git lg"
-alias gp="git pull"
-alias gpr="git pull --rebase"
+alias gp="git pull --rebase"
 alias gpv="git push -f origin HEAD:vagrant/mike"
 alias grh="git reset HEAD"
 alias s="git status"
@@ -33,6 +28,10 @@ alias b="bundle"
 alias be="bundle exec"
 alias brs="bundle exec rails server"
 alias con="bundle exec rails console"
+
+# ember-cli shortcuts
+alias es="ember serve"
+alias et="ember test"
 
 # chef helper
 alias kcu="knife cookbook upload"
