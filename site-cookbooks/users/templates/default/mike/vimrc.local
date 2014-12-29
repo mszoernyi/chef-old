@@ -365,4 +365,10 @@ nnoremap <silent> S :<C-U>call <SID>try('SplitjoinSplit', 'S')<CR>
 
 NeoBundle 'editorconfig/editorconfig-vim'
 
+NeoBunlde 'thoughtbot/vim-rspec'
+map <Leader>sf :call RunCurrentSpecFile()<CR>
+map <Leader>sn :call RunNearestSpec()<CR>
+map <Leader>sl :call RunLastSpec()<CR>
+map <Leader>sa :call RunAllSpecs()<CR>
+
 " vim: ft=vim

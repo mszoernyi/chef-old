@@ -21,4 +21,9 @@ if !root?
     cookbook "users"
     instance node[:current_user]
   end
+  overridable_template "#{node[:homedir]}/.tmuxinator/remerge-api.yml" do
+    source "tmuxinator/remerge-api.yml"
+    cookbook "users"
+    instance node[:current_user]
+  end
 end
