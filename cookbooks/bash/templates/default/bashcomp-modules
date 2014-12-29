@@ -17,7 +17,6 @@ cmake
 configure
 coreutils
 cpio
-crontab
 cvs
 cvsps
 dd
@@ -73,7 +72,6 @@ ncftp
 net-tools
 netctl
 nmap
-ntpdate
 openldap
 openssl
 pip

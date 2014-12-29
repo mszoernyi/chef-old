@@ -4,7 +4,6 @@ source 'https://rubygems.org'
 gem 'chef', '~> 11'
 gem 'foodcritic', '~> 3.0'
 gem 'knife-dsl', github: 'zenops/knife-dsl'
-gem 'mixlib-shellout', github: 'zenops/mixlib-shellout'
 
 # APIs
 gem 'hetzner-api'
@@ -20,6 +19,7 @@ gem 'rake'
 gem 'rb-inotify'
 gem 'rvm'
 gem 'tailor', github: 'hollow/tailor'
+gem 'webhdfs'
 
 group :test do
   gem 'kitchen-vagrant'

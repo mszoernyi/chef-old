@@ -23,6 +23,8 @@ action :create do
     export USER=#{rvm[:user]}
     export HOME=#{rvm[:homedir]}
 
+    gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+
     tmpfile=$(mktemp)
     curl -s -L -k https://get.rvm.io -o ${tmpfile}
     chmod +x ${tmpfile}
@@ -33,7 +35,7 @@ action :create do
     if new_resource.update
       not_if { ::File.read("#{rvm[:path]}/VERSION").split.first == rvm[:version] rescue false }
     else
-      creates "#{rvm[:path]}/VERSION"
+      not_if { ::File.exist?("#{rvm[:path]}/VERSION") }
     end
 
     user rvm[:user]

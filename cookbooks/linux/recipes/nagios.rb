@@ -1,12 +1,6 @@
 if nagios_client?
   include_recipe "nagios::client"
 
-  nagios_service "PING" do
-    check_command "check_ping!250.0,20%!500.0,60%"
-    servicegroups "network"
-    env [:staging, :testing, :development]
-  end
-
   nrpe_command "check_load" do
     command "/usr/lib/nagios/plugins/check_load -w #{node[:cpu][:total]*3} -c #{node[:cpu][:total]*10}"
   end
@@ -82,6 +76,7 @@ if nagios_client?
 
   mounts = node[:filesystem].values.map do |fs|
     next if fs[:mount] =~ %r{/run/user/}
+    next if fs[:mount] =~ %r{/lxc}
     fs if fs[:fs_type] && fs[:mount] && File.directory?(fs[:mount])
   end.compact.map do |fs|
     warn = [fs[:kb_size].to_i * 0.10, 1.0 * 1024 * 1024].min.to_i / 1024
@@ -129,5 +124,15 @@ if nagios_client?
     servicegroups "network"
     check_interval 10
     env [:staging, :testing, :development]
+  end
+
+  nrpe_command "check_time" do
+    command "/usr/lib/nagios/plugins/check_ntp_time -H pool.ntp.org -w 0.5 -c 1"
+  end
+
+  nagios_service "TIME" do
+    check_command "check_nrpe!check_time"
+    servicegroups "system"
+    env [:testing, :development]
   end
 end

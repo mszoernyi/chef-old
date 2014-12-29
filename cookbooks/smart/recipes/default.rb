@@ -6,7 +6,7 @@ else
   raise "cookbook smart does not support #{node[:platform]}"
 end
 
-if node[:smart][:devices].any?
+if !lxc? && node[:smart][:devices].any?
   cookbook_file "/usr/local/sbin/diskreport" do
     source "diskreport.sh"
     owner "root"
@@ -42,8 +42,6 @@ if node[:smart][:devices].any?
 
       nagios_service "SMART_#{devname.upcase}" do
         check_command "check_nrpe!check_smart_#{devname}"
-        check_interval 60
-        notification_interval 180
         env [:testing, :development]
       end
     end

@@ -11,8 +11,6 @@ supports "gentoo"
 supports "ubuntu"
 
 depends "apt"
-depends "collectd"
-depends "cron"
 depends "nagios"
 depends "portage"
 depends "systemd"

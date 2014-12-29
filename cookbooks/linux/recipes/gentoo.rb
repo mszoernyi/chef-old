@@ -2,14 +2,11 @@ include_recipe "portage"
 
 package "sys-apps/gentoo-functions"
 
+# need this until every script is updated
+directory "/etc/init.d"
+
 link "/etc/init.d/functions.sh" do
   to "/lib/gentoo/functions.sh"
-end
-
-directory "/etc/local.d" do
-  owner "root"
-  group "root"
-  mode "0755"
 end
 
 # stupid #$%^&*
@@ -25,6 +22,13 @@ systemd_unit "irqd.service"
 
 service "irqd" do
   action [:enable, :start]
+end
+
+file "/etc/resolvconf.conf" do
+  content "resolv_conf=/tmp/.resolv.conf\n"
+  owner "root"
+  group "root"
+  mode "0644"
 end
 
 cookbook_file "/etc/dhcpcd.conf" do

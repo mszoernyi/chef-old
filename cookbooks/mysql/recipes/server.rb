@@ -106,7 +106,54 @@ if gentoo?
       backup 0
     end
 
-    include_recipe "mysql::backup"
+    backupdir = "/var/lib/mysql/backup"
+
+    directory backupdir do
+      owner "root"
+      group "root"
+      mode "0700"
+    end
+
+    if mysql_nodes.first
+      primary = (node[:fqdn] == mysql_nodes.first[:fqdn])
+    else
+      primary = true
+    end
+
+    %w(
+      mysql_full_backup
+      mysql_full_clean
+      mysql_binlog_backup
+      mysql_binlog_clean
+    ).each do |t|
+      systemd_timer t do
+        action :delete
+      end
+
+      file "/usr/local/sbin/#{t}" do
+        action :delete
+      end
+    end
+
+    systemd_timer "mysql-backup" do
+      schedule %w(OnCalendar=daily)
+      unit({
+        command: [
+          "/bin/bash -c 'rm -rf #{backupdir}'",
+          "/usr/bin/innobackupex --slave-info --no-timestamp #{backupdir}",
+        ],
+        user: "root",
+        group: "root",
+      })
+      action :delete unless primary
+    end
+
+    duply_backup "mysql" do
+      source backupdir
+      max_full_backups 30
+      incremental false
+      action :delete unless primary
+    end
   end
 
 elsif mac_os_x?
@@ -155,7 +202,7 @@ if nagios_client?
     service_name = "MYSQL-#{name.upcase}"
 
     nrpe_command command_name do
-      command "/usr/lib/nagios/plugins/check_mysql_health --mode #{params[:command]} --warning #{params[:warning]} --critical #{params[:critical]}"
+      command "/usr/lib/nagios/plugins/check_mysql_health --mode #{params[:command]} --warning #{params[:warning]} --critical #{params[:critical]} --hostname #{node[:mysql][:connection][:host]} --username #{node[:mysql][:connection][:username]} --password #{node[:mysql][:connection][:password]}"
     end
 
     nagios_service service_name do

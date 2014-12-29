@@ -34,7 +34,6 @@ if gentoo?
     net-misc/keychain
     net-misc/telnet-bsd
     net-misc/whois
-    sys-apps/ack
     sys-apps/dmidecode
     sys-apps/dstat
     sys-apps/ethtool
@@ -46,11 +45,13 @@ if gentoo?
     sys-apps/net-tools
     sys-apps/pciutils
     sys-apps/pv
+    sys-apps/the_silver_searcher
     sys-apps/util-linux
     sys-fs/ncdu
     sys-power/acpitool
     sys-process/iotop
     sys-process/lsof
+    sys-process/numactl
     sys-process/procps
     sys-process/tiptop
   )

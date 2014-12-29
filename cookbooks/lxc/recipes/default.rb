@@ -1,4 +1,5 @@
 include_recipe "debootstrap"
+include_recipe "zfs"
 
 if gentoo?
   package "app-emulation/lxc"
@@ -42,10 +43,8 @@ template "/etc/lxc/default.conf" do
   mode "0640"
 end
 
-systemd_unit "lxc-network.service"
-
-service "lxc-network" do
-  action [:enable, :start]
+systemd_unit "lxc-network.service" do
+  action :delete
 end
 
 directory "/usr/share/lxc" do

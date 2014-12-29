@@ -1,4 +1,4 @@
-source_url = "https://opscode-omnibus-packages.s3.amazonaws.com/ubuntu/12.04/x86_64/chef-server_11.1.3-1_amd64.deb"
+source_url = "https://opscode-omnibus-packages.s3.amazonaws.com/ubuntu/12.04/x86_64/chef-server_11.1.6-1_amd64.deb"
 source_filename = File.basename(source_url)
 
 remote_file "#{Chef::Config[:file_cache_path]}/#{source_filename}" do
@@ -34,12 +34,15 @@ cookbook_file "/opt/chef-server/bin/backup" do
   mode "0755"
 end
 
-cron "chef-server-backup" do
-  command "/opt/chef-server/bin/backup --backup"
-  hour "3"
-  minute "0"
-end
+#systemd_timer "chef-server-backup" do
+#  schedule %w(OnCalendar=daily)
+#  unit({
+#    command: "/opt/chef-server/bin/backup --backup",
+#    user: "root",
+#    group: "root",
+#  })
+#end
 
-duply_backup "chef-server" do
-  source "/var/opt/chef-server/backup"
-end
+#duply_backup "chef-server" do
+#  source "/var/opt/chef-server/backup"
+#end

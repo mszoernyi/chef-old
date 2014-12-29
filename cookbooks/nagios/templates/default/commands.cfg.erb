@@ -27,12 +27,7 @@ define command {
 
 define command {
   command_name check_aggregate
-  command_line $USER1$/check_aggregate -s 'service_description=$ARG1$$' -w $ARG2$ -c $ARG3$ $ARG4$
-}
-
-define command {
-  command_name check_ping
-  command_line $USER1$/check_ping -H $HOSTADDRESS$ -w $ARG1$ -c $ARG2$ -p 5
+  command_line $USER1$/check_aggregate -s 'service_description=$ARG1$$$' -w $ARG2$ -c $ARG3$ -H $ARG4$
 }
 
 define command {
@@ -62,7 +57,7 @@ define command {
 
 define command {
   command_name check_splunk
-  command_line $USER1$/check_splunk "$ARG1$"
+  command_line $USER1$/check_splunk "$ARG1$" "$ARG2$"
 }
 
 define command {
