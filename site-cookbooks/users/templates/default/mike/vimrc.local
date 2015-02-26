@@ -39,6 +39,9 @@ set cursorline
 " easy pasting
 set pastetoggle=<F4>
 
+" toggle spellcheck
+map <F5> :setlocal spell! spelllang=en_us<CR>
+
 " split windows at the bottom by default
 set splitbelow
 " }}}
@@ -74,10 +77,15 @@ autocmd BufNewFile,BufRead *.em set filetype=ember-script
 autocmd FileType ember-script set tabstop=2|set shiftwidth=2|set expandtab
 
 " Golang support
-"NeoBundle 'hollow/vim-go'
-"au FileType go nmap gd <Plug>(go-def-split)
-"au FileType go nmap <Leader>gd <Plug>(go-doc)
-"let $GOPATH = getcwd() . "/.vendor:~/.go"
+NeoBundle 'hollow/vim-go'
+let g:go_fmt_command = "goimports"
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_structs = 1
+let $GOPATH = getcwd() . "/.vendor:/home/bene/.go"
+au BufNewFile,BufRead *.go set filetype=go
+au FileType go nmap gd <Plug>(go-def-split)
+au FileType go nmap <Leader>gd <Plug>(go-doc)
 
 " recognize AppleScript syntax
 NeoBundle 'vim-scripts/applescript.vim'
@@ -364,7 +372,7 @@ nnoremap <silent> S :<C-U>call <SID>try('SplitjoinSplit', 'S')<CR>
 
 NeoBundle 'editorconfig/editorconfig-vim'
 
-NeoBunlde 'thoughtbot/vim-rspec'
+NeoBundle 'thoughtbot/vim-rspec'
 map <Leader>sf :call RunCurrentSpecFile()<CR>
 map <Leader>sn :call RunNearestSpec()<CR>
 map <Leader>sl :call RunLastSpec()<CR>
