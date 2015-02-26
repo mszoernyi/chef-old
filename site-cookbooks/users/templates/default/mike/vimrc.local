@@ -275,11 +275,12 @@ function! RenameFile()
 endfunction
 nnoremap <silent> <F2> :call RenameFile()<cr>
 
-" window/tab movement
-nmap <S-Down>  <C-W><Down>
-nmap <S-Up>    <C-W><Up>
-nmap <S-Left>  <C-W><Left>
-nmap <S-Right> <C-W><Right>
+NeoBundle 'hollow/vim-tmux-navigator'
+let g:tmux_navigator_no_mappings = 1
+nnoremap <silent> <c-h> :TmuxNavigateLeft<cr>
+nnoremap <silent> <c-j> :TmuxNavigateDown<cr>
+nnoremap <silent> <c-k> :TmuxNavigateUp<cr>
+nnoremap <silent> <c-l> :TmuxNavigateRight<cr>
 
 " close with Ctrl-C
 nmap <C-c>     <C-W><C-C>
@@ -315,8 +316,6 @@ vmap <silent> <leader>su :sort u<cr>
 " add ruby debugger
 nnoremap <silent> <leader>rad Orequire 'ruby-debug'; debugger<esc>
 " }}}
-
-NeoBundle 'christoomey/vim-tmux-navigator'
 
 " disable cursor keys - break the habit!
 noremap <Up> <NOP>
