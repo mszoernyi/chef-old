@@ -1,3 +1,5 @@
+PATH=$PATH:~/.npm/bin
+
 # blacklist for bash completion
 FIGNORE=".o:~:CVS:.svn:.git:metadata.json"
 
