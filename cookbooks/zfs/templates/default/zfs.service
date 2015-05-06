@@ -1,0 +1,15 @@
+[Unit]
+Description=ZFS filesystems setup
+Before=network.target
+After=systemd-udev-settle.target local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/sbin/modprobe zfs
+ExecStartPre=/usr/bin/test -c /dev/zfs
+ExecStartPre=/etc/zfs/mount_zpools
+ExecStop=/etc/zfs/unmount_zpools
+
+[Install]
+WantedBy=multi-user.target

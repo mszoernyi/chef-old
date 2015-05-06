@@ -13,6 +13,8 @@
     "recipe[rvm]",
     "recipe[ssh]",
     "recipe[tmux]",
-    "recipe[vim]"
+    "recipe[vim]",
+    "recipe[virtualbox]",
+    "recipe[zenops::workstation]"
   ]
 }

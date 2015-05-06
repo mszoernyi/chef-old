@@ -1,3 +1,9 @@
+begin
+  require 'open4'
+  include Open4
+rescue LoadError
+end
+
 module Gentoo
   module Portage
     module PackageConf
@@ -33,7 +39,7 @@ module Gentoo
         new_resource.updated_by_last_action(updated)
         begin
           package_resource = run_context.resource_collection.find(package: new_resource.package)
-          new_resource.notifies(:upgrade, package_resource, :immediately) if updated
+          new_resource.notifies(:upgrade, package_resource, :immediately) if updated && new_resource.upgrade
         rescue Chef::Exceptions::ResourceNotFound
           # do nothing
         end
@@ -78,6 +84,7 @@ class Chef
   class Provider
     class Package
       class Portage < Chef::Provider::Package
+        include Chef::Mixin::ShellOut
 
         def load_current_resource
           @current_resource = Chef::Resource::Package.new(@new_resource.name)
@@ -92,63 +99,9 @@ class Chef
           @candidate_version ||= package_info[:candidate_version] rescue nil
         end
 
-        def install_package(name, version)
-          pkg = "=#{name}-#{version}"
-
-          if(version =~ /^\~(.+)/)
-            # If we start with a tilde
-            pkg = "~#{name}-#{$1}"
-          end
-
-          run_command_with_systems_locale(
-            :command => "/usr/bin/sudo -H /usr/bin/emerge --color=n --nospinner --quiet -Nnu #{expand_options(@new_resource.options)} #{pkg}"
-          )
-        end
-
-        def action_install
-          # If we specified a version, and it's not the current version, move to the specified version
-          if !@new_resource.version.nil? && !(target_version_already_installed?)
-            install_version = @new_resource.version
-            # If it's not installed at all, install it
-          elsif @current_resource.version.nil?
-            install_version = candidate_version
-          else
-            Chef::Log.debug("#{@new_resource} is already installed - nothing to do")
-            return
-          end
-
-          # We need to make sure we handle the preseed file
-          if @new_resource.response_file
-            if preseed_file = get_preseed_file(@new_resource.package_name, install_version)
-              converge_by("preseed package #{@new_resource.package_name}") do
-                preseed_package(preseed_file)
-              end
-            end
-          end
-          description = install_version ? "version #{install_version} of" : ""
-          converge_by("install #{description} package #{@new_resource.package_name}") do
-            @new_resource.version(install_version)
-            install_package(@new_resource.package_name, install_version)
-          end
-        end
-
-        def action_upgrade
-          @new_resource.version(candidate_version)
-          converge_by("upgrade package #{@new_resource.package_name}") do
-            upgrade_package(@new_resource.package_name, candidate_version)
-            Chef::Log.info("#{@new_resource} upgraded package")
-          end
-        end
-
         def package_info
           packages_cache_from_eix
-          @@packages_cache[@new_resource.package_name].tap do |pkg|
-            if pkg
-              pkg.merge!({
-                :package_atom => full_package_atom(@new_resource.package_name, @new_resource.version)
-              })
-            end
-          end
+          @@packages_cache[@new_resource.package_name]
         end
 
         def packages_cache_from_eix
@@ -164,18 +117,7 @@ class Chef
             raise Chef::Exceptions::Package, "You need to install app-portage/eix for fast package searches."
           end
 
-          # We need to update the eix database if it's older than the current portage
-          # tree or the eix binary.
-          if ::File.directory?("/var/cache/eix")
-            cache_file = "/var/cache/eix/portage.eix"
-          else
-            cache_file = "/var/cache/eix"
-          end
-
-          unless ::FileUtils.uptodate?(cache_file, [eix, "/usr/portage/metadata/timestamp"])
-            Chef::Log.debug("eix database outdated, calling `#{eix_update}`.")
-            Chef::Mixin::Command.run_command_with_systems_locale(:command => eix_update)
-          end
+          shell_out!(eix_update)
 
           query_command = [
             eix,
@@ -185,6 +127,7 @@ class Chef
           ].join(" ")
 
           eix_stderr = nil
+
           @@packages_cache = {}
 
           Chef::Log.debug("Calling `#{query_command}`.")
@@ -204,11 +147,18 @@ class Chef
           end
         end
 
+        def install_package(name, version)
+          pkg = full_package_atom(name, version)
+          shell_out!("/usr/bin/sudo -H /usr/bin/emerge --color=n --nospinner --quiet -Nnu #{expand_options(@new_resource.options)} #{pkg}")
+        end
+
         def full_package_atom(package_atom, version = nil)
           return package_atom unless version
 
           if version =~ /^\~(.+)/
             "~#{package_atom}-#{$1}"
+          elsif version =~ /^:(.+)/
+            "#{package_atom}:#{$1}"
           else
             "=#{package_atom}-#{version}"
           end

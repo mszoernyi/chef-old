@@ -1,4 +1,4 @@
-include_recipe "nginx::php"
+include_recipe "nginx"
 
 portage_package_use "net-analyzer/nagios-plugins" do
   use %w(ldap mysql nagios-dns nagios-ntp nagios-ping nagios-ssh postgres)
@@ -117,25 +117,16 @@ end
 
 # create nagios objects
 nagios_conf "commands"
-
-nagios_conf "templates" do
-  variables :hostmasters => hostmasters
-end
-
-nagios_conf "contacts" do
-  variables :contacts => contacts
-end
-
-nagios_conf "timeperiods" do
-  variables :contacts => contacts
-end
+nagios_conf "contacts"
+nagios_conf "templates"
+nagios_conf "timeperiods"
 
 nagios_conf "hostgroups" do
-  variables :hostgroups => hostgroups
+  variables hostgroups: hostgroups
 end
 
 nagios_conf "servicegroups" do
-  variables :hosts => hosts
+  variables hosts: hosts
 end
 
 hosts.each do |host|
@@ -221,15 +212,15 @@ file "/var/www/localhost/htdocs/index.html" do
   action :delete
 end
 
-template "/usr/share/nagios/htdocs/index.php" do
-  source "index.php"
+template "/usr/share/nagios/htdocs/index.html" do
+  source "index.html"
   owner "nagios"
   group "nagios"
   mode "0644"
 end
 
-cookbook_file "/usr/share/nagios/htdocs/side.php" do
-  source "side.php"
+cookbook_file "/usr/share/nagios/htdocs/side.html" do
+  source "side.html"
   owner "nagios"
   group "nagios"
   mode "0644"

@@ -95,15 +95,18 @@ namespace :node do
     args.with_defaults(password: "tux")
     ENV['BATCH'] = "1"
     ENV['DISTRO'] ||= "gentoo"
+    ENV['ROLE'] ||= "bootstrap"
+    ENV['ENVIRONMENT'] ||= "production"
     run_task('node:checkdns', args.fqdn, args.ipaddress)
     run_task('ssl:do_cert', args.fqdn)
     knife :upload, ["cookbooks/certificates"]
     key = File.join(ROOT, "tasks/support/id_rsa")
-    sh("knife bootstrap #{args.fqdn} --no-host-key-verify --distro #{ENV['DISTRO']} -P #{args.password} -r 'role[bootstrap]' -E production -i #{key}")
+    sh("knife bootstrap #{args.fqdn} --no-host-key-verify --no-node-verify-api-cert --node-ssl-verify-mode none -t #{ENV['DISTRO']} -P #{args.password} -r 'role[#{ENV['ROLE']}]' -E #{ENV['ENVIRONMENT']} -i #{key}")
   end
 
   desc "Update node packages"
   task :updateworld, :fqdn do |t, args|
+    system("ssh -t #{args.fqdn} '/usr/bin/sudo -i eix-sync -q'")
     env = "/usr/bin/env UPDATEWORLD_DONT_ASK=1" if ENV['BATCH']
     system("ssh -t #{args.fqdn} '/usr/bin/sudo -i #{env} /usr/local/sbin/updateworld'")
     reboot_wait(args.fqdn) if ENV['REBOOT']

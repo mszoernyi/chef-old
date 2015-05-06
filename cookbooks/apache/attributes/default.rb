@@ -3,7 +3,7 @@ default[:apache][:apr_util][:use] = []
 default[:apache][:modules] = %w(actions alias auth_basic authn_default
 authn_file authz_default authz_groupfile authz_host authz_user autoindex cgi
 cgid deflate dir env expires filter headers info log_config mime mime_magic
-proxy rewrite setenvif status)
+proxy rewrite setenvif status unique_id)
 
 # MPM configuration
 default[:apache][:mpm] = "prefork"
@@ -34,9 +34,6 @@ default[:apache][:multiplexer_idle_timeout] = "120"
 default[:apache][:processor_wait_timeout] = "10"
 
 default[:apache][:error_log] = "syslog:daemon"
-
-default[:apache][:default_vhost] = true
-default[:apache][:default_redirect] = nil
 
 default[:apache][:ssl][:enabled] = false
 

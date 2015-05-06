@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+name "linux"
 description "Basic Linux specific resources"
 
 maintainer "Benedikt Böhm"
@@ -11,6 +12,7 @@ supports "gentoo"
 supports "ubuntu"
 
 depends "apt"
+depends "duply"
 depends "nagios"
 depends "portage"
 depends "systemd"

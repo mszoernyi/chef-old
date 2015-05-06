@@ -1,3 +1,4 @@
+name "tmuxinator"
 description "Install tmuxinator with user configurations"
 
 maintainer "Mike Szörnyi"

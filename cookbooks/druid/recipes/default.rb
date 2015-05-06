@@ -3,7 +3,8 @@ include_recipe "java"
 deploy_skeleton "druid"
 
 %w(
-  /etc/druid
+  /var/app/druid/config
+  /var/app/druid/config/_common
   /var/app/druid/storage
   /var/app/druid/storage/tmp
   /var/app/druid/storage/info
@@ -33,15 +34,15 @@ deploy_application "druid" do
   end
 end
 
-template "/etc/druid/log4j.properties" do
+template "/var/app/druid/config/log4j.properties" do
   source "log4j.properties"
   owner "root"
   group "root"
   mode "0644"
 end
 
-template "/etc/druid/runtime.properties" do
-  source "runtime.properties"
+template "/var/app/druid/config/_common/common.runtime.properties" do
+  source "common.runtime.properties"
   owner "root"
   group "root"
   mode "0644"
@@ -55,6 +56,15 @@ ruby_block "druid-zk-chroot" do
     require 'zk'
     ZK.new(zookeeper_connect(node[:druid][:zookeeper][:root], node[:druid][:cluster]))
   end
+end
+
+file "/var/app/smc/current/plugin.d/druid.json" do
+  content({
+    Enabled: true,
+  }.to_json)
+  owner "smc"
+  group "smc"
+  notifies :restart, "service[smc]"
 end
 
 if nagios_client?

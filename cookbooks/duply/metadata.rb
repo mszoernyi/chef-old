@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+name "duply"
 description "Duply is a wrapper for duplicity backups"
 
 maintainer "Benedikt Böhm"
@@ -8,5 +9,3 @@ license "Apache v2.0"
 
 supports "debian"
 supports "gentoo"
-
-depends "nagios"

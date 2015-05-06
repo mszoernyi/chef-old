@@ -43,10 +43,6 @@ template "/etc/lxc/default.conf" do
   mode "0640"
 end
 
-systemd_unit "lxc-network.service" do
-  action :delete
-end
-
 directory "/usr/share/lxc" do
   owner "root"
   group "root"
@@ -59,6 +55,13 @@ directory "/usr/share/lxc/templates" do
   mode "0755"
 end
 
+cookbook_file "/usr/share/lxc/config/common.conf" do
+  source "common.conf"
+  owner "root"
+  group "root"
+  mode "0644"
+end
+
 %w(gentoo ubuntu).each do |platform|
   cookbook_file "/usr/share/lxc/templates/lxc-#{platform}" do
     source "lxc-#{platform}"
@@ -69,3 +72,8 @@ end
 end
 
 systemd_unit "lxc@.service"
+
+duply_backup "lxc" do
+  source "/lxc"
+  duplicity_params "--exclude-other-filesystems"
+end

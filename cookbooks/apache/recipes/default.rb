@@ -65,7 +65,6 @@ end
   10_mod_mem_cache
   20_mod_common_redirect
   40_mod_ssl
-  46_mod_ldap
   98_mod_extract_forwarded
 ).each do |m|
   apache_module m do
@@ -75,17 +74,6 @@ end
 
 apache_vhost "status" do
   template "status.conf"
-end
-
-if node[:apache][:default_vhost]
-  default_action = :create
-else
-  default_action = :delete
-end
-
-apache_vhost "00-default" do
-  template "default.conf"
-  action default_action
 end
 
 systemd_unit "apache2.service"

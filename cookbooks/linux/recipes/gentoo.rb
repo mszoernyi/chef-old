@@ -1,3 +1,12 @@
+# stupid #$%^&*
+link "/sbin/ip" do
+  to "/bin/ip"
+end
+
+link "/bin/systemctl" do
+  to "/usr/bin/systemctl"
+end
+
 include_recipe "portage"
 
 package "sys-apps/gentoo-functions"
@@ -9,19 +18,29 @@ link "/etc/init.d/functions.sh" do
   to "/lib/gentoo/functions.sh"
 end
 
-# stupid #$%^&*
-link "/sbin/ip" do
-  to "/bin/ip"
-end
-
-package "sys-apps/irqd"
-
 directory "/var/lib/misc"
 
-systemd_unit "irqd.service"
+package "sys-apps/irqbalance"
+package "sys-apps/irqd"
 
-service "irqd" do
-  action [:enable, :start]
+if node[:cpu][:total] > 32
+  service "irqd" do
+    action [:disable, :stop]
+  end
+
+  service "irqbalance" do
+    action [:enable, :start]
+  end
+else
+  systemd_unit "irqd.service"
+
+  service "irqbalance" do
+    action [:disable, :stop]
+  end
+
+  service "irqd" do
+    action [:enable, :start]
+  end
 end
 
 file "/etc/resolvconf.conf" do
@@ -31,15 +50,6 @@ file "/etc/resolvconf.conf" do
   mode "0644"
 end
 
-cookbook_file "/etc/dhcpcd.conf" do
-  source "dhcpcd.conf"
-  owner "root"
-  group "root"
-  mode "0640"
-  #notifies :restart, "service[dhcpcd]"
-end
-
-service "dhcpcd" do
-  action [:enable, :start]
-  only_if { File.exist?("/etc/systemd/system/multi-user.target.wants/dhcpcd.service") }
+file "/etc/dhcpcd.conf" do
+  action :delete
 end

@@ -7,8 +7,8 @@ elsif debian_based?
   package "exuberant-ctags"
 
 elsif mac_os_x?
-  package "vim"
-  package "ctags"
+  homebrew_package "vim"
+  homebrew_package "ctags"
 end
 
 directory node[:vim][:rcdir] do
@@ -39,7 +39,7 @@ else
   end
 
   git "#{node[:vim][:rcdir]}/bundle/neobundle.vim" do
-    repository "https://github.com/Shougo/neobundle.vim"
+    repository "https://github.com/hollow/neobundle.vim"
     reference "master"
     action :checkout
   end

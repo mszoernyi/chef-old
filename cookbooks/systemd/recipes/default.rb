@@ -4,10 +4,6 @@ if gentoo?
 
     include_recipe "systemd::cleanup"
 
-    link "/bin/systemctl" do
-      to "/usr/bin/systemctl"
-    end
-
     # by default, boot into multi-user.target
     service "#{node[:systemd][:target]}.target" do
       action :enable
@@ -21,21 +17,30 @@ if gentoo?
       mode "0644"
     end
 
-    # journal
-    systemd_unit "systemd-journald.socket"
-
-    service "systemd-journald.service" do
-      action :nothing
-      provider Chef::Provider::Service::Systemd
-      only_if { systemd_running? }
+    cookbook_file "/usr/lib/tmpfiles.d/etc.conf" do
+      source "etc.conf"
+      owner "root"
+      group "root"
+      mode "0644"
     end
 
+    # timesyncd
+    service "systemd-timesyncd.service" do
+      action [:enable]
+      provider Chef::Provider::Service::Systemd
+      only_if { systemd_running? && File.exist?("/usr/lib/systemd/system/systemd-timesyncd.service") }
+    end
+
+    execute "timedatectl set-ntp true" do
+      only_if { systemd_running? && File.exist?("/usr/lib/systemd/system/systemd-timesyncd.service") }
+    end
+
+    # journal
     template "/etc/systemd/journald.conf" do
       source "journald.conf"
       owner "root"
       group "root"
       mode "0644"
-      notifies :restart, "service[systemd-journald.service]"
     end
 
     # networking
@@ -44,6 +49,25 @@ if gentoo?
       owner "root"
       group "root"
       mode "0644"
+    end
+
+    file "/etc/systemd/network/default.network" do
+      content "[Match]\nName=eth0\n\n[Network]\nDHCP=v4\n"
+      owner "root"
+      group "root"
+      mode "0644"
+      not_if { File.exist?("/etc/systemd/network/default.network") }
+    end
+
+    service "systemd-networkd.service" do
+      action [:enable]
+      provider Chef::Provider::Service::Systemd
+    end
+
+    service "systemd-networkd-wait-online.service" do
+      action [:enable]
+      provider Chef::Provider::Service::Systemd
+      only_if { File.exist?("/usr/lib/systemd/system/systemd-networkd-wait-online.service") }
     end
 
     service "sshd.service" do

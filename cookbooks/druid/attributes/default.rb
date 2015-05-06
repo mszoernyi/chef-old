@@ -1,5 +1,5 @@
 default[:druid][:git][:repository] = "https://github.com/metamx/druid"
-default[:druid][:git][:revision] = "druid-0.6.160"
+default[:druid][:git][:revision] = "druid-0.7.1"
 
 default[:druid][:cluster] = node.cluster_name
 
@@ -10,25 +10,22 @@ default[:dumbo][:git][:repository] = "https://github.com/remerge/druid-dumbo"
 
 # Modules
 default[:druid][:core_extensions] = [
-  "hdfs-storage",
-  "kafka-eight",
-  "histogram",
+  "mysql-metadata-storage",
+  "druid-hdfs-storage",
+  "druid-kafka-eight",
+  "druid-histogram",
 ]
 
 default[:druid][:extensions] = []
 
-# Curator Module / Discovery Module
+# Curator Module
 default[:druid][:zookeeper][:root] = "/druid"
 default[:druid][:zookeeper][:timeout] = 6000
-default[:druid][:zookeeper][:discovery] = "/discovery"
 
 # Druid Processing Module
 default[:druid][:processing][:buffer] = 1073741824
 default[:druid][:processing][:numThreads] = [node[:cpu][:total]-1, 1].max
-default[:druid][:processing][:memory] = (node[:druid][:processing][:buffer]*(node[:druid][:processing][:numThreads]+1)/1048576.0)
-
-# Metrics Module
-default[:druid][:monitors] = []
+default[:druid][:processing][:memory] = (node[:druid][:processing][:buffer]*(node[:druid][:processing][:numThreads]+1)/1048576.0).ceil
 
 # Storage Node Module
 default[:druid][:server][:max_size] = 1 * 1024 * 1024 * 1024
@@ -39,34 +36,18 @@ default[:druid][:server][:priority] = 0
 default[:druid][:storage][:type] = "local"
 default[:druid][:storage][:directory] = "/var/app/druid/storage"
 
-# Indexing Services
-default[:druid][:indexer][:port] = 8091
-default[:druid][:indexer][:mx] = 2 * 1024
-default[:druid][:indexer][:dm] = 64
-default[:druid][:indexer][:runner][:javaOpts] = "-d64 -server -Xmx8g"
-default[:druid][:indexer][:runner][:startPort] = 8092
-default[:druid][:indexer][:workers] = [node[:cpu][:total]-1,1].max
-default[:druid][:indexing][:service] = node.cluster_name
-
-# Overlord Services
-default[:druid][:overlord][:port] = 8090
-default[:druid][:overlord][:mx] = 2 * 1024
-default[:druid][:overlord][:dm] = 64
+# Discovery Module
+default[:druid][:zookeeper][:discovery] = "/discovery"
 
 # Coordinator Services
 default[:druid][:coordinator][:port] = 8081
 default[:druid][:coordinator][:mx] = 2 * 1024
 default[:druid][:coordinator][:dm] = 64
 
-# Historical Services
-default[:druid][:historical][:port] = 8082
-default[:druid][:historical][:mx] = (node[:memory][:total].to_i/1024 - node[:druid][:processing][:memory] - node[:druid][:coordinator][:mx].to_i - 2048).ceil
-default[:druid][:historical][:dm] = node[:druid][:processing][:memory].ceil
-
 # Broker Services
 default[:druid][:broker][:port] = 8080
-default[:druid][:broker][:mx] = (node[:memory][:total].to_i/1024 - node[:druid][:processing][:memory] - node[:druid][:coordinator][:mx].to_i - 2048).ceil
-default[:druid][:broker][:dm] = node[:druid][:processing][:memory].ceil
+default[:druid][:broker][:mx] = node[:memory][:total].to_i/1024 - node[:druid][:processing][:memory] - node[:druid][:coordinator][:mx].to_i - 2048
+default[:druid][:broker][:dm] = node[:druid][:processing][:memory]
 default[:druid][:broker][:cache_size_in_bytes] = 42949672960
 default[:druid][:broker][:connections] = 20
 default[:druid][:broker][:timeout] = "PT10M"
@@ -77,3 +58,22 @@ default[:druid][:realtime][:port] = 8083
 default[:druid][:realtime][:mx] = 12 * 1024
 default[:druid][:realtime][:dm] = 12 * 1024
 default[:druid][:realtime][:partition] = IPAddr.new(node[:ipaddress]).to_i & (2**31-1)
+
+# Historical Services
+default[:druid][:historical][:port] = 8082
+default[:druid][:historical][:mx] = node[:memory][:total].to_i/1024 - node[:druid][:processing][:memory] - 8192
+default[:druid][:historical][:dm] = node[:druid][:processing][:memory]
+
+# Overlord Services
+default[:druid][:overlord][:port] = 8090
+default[:druid][:overlord][:mx] = 2 * 1024
+default[:druid][:overlord][:dm] = 64
+
+# Middle Manager Services
+default[:druid][:middleManager][:port] = 8091
+default[:druid][:middleManager][:mx] = 2 * 1024
+default[:druid][:middleManager][:dm] = 64
+
+default[:druid][:worker][:capacity] = [node[:cpu][:total]/2,1].max
+default[:druid][:indexer][:runner][:javaOpts] = "-d64 -server -Xmx8g -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
+default[:druid][:indexer][:runner][:startPort] = 8092
