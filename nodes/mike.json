@@ -21,10 +21,7 @@
     "role[workstation]",
     "recipe[tmuxinator]",
     "recipe[nodejs]",
-    "recipe[mac::drive]",
-    "recipe[mac::istatmenus]",
-    "recipe[mac::skype]",
-    "recipe[mac::spotify]",
-    "recipe[mac::tunnelblick]"
+    "recipe[postgresql]",
+    "recipe[slate]"
   ]
 }
