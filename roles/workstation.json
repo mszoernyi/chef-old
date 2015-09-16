@@ -14,7 +14,6 @@
     "recipe[ssh]",
     "recipe[tmux]",
     "recipe[vim]",
-    "recipe[virtualbox]",
     "recipe[zenops::workstation]"
   ]
 }
