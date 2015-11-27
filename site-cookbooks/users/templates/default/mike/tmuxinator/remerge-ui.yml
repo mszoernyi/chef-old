@@ -1,4 +1,4 @@
-project_name: remerge
+project_name: remerge-ui
 project_root: ~/projects/remerge/ui
 socket_path: /tmp/tmux
 windows:
