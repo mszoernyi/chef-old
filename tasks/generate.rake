@@ -44,30 +44,41 @@ namespace :generate do
   desc "Generate a default OpenVPN/Tunnelblick config"
   task :tunnelblick, :login do |t, args|
     args.with_defaults(login: Chef::Config[:node_name])
-
-    remote = "vpn." + URI.parse(Chef::Config[:chef_server_url]).host.split('.')[1..-1].join('.')
     login = args.login
 
-    b = binding()
-    erb = Erubis::Eruby.new(File.read(File.join(TEMPLATES_DIR, 'openvpn.conf')))
+    ENV["BATCH"] = "1"
+    ssl_args = Rake::TaskArguments.new([:cn], [login])
+    Rake::Task["ssl:do_cert"].execute(ssl_args)
 
-    tmpdir = Dir.mktmpdir
-    path = File.join(tmpdir, "#{$conf.company.name} VPN.tblk")
-    FileUtils.mkdir_p(path)
+    remote = "vpn." + URI.parse(Chef::Config[:chef_server_url]).host.split('.')[1..-1].join('.')
+    name = "#{$conf.company.name} VPN"
 
-    File.open(File.join(path, "config.ovpn"), "w") do |f|
-      f.puts(erb.result(b))
-    end
+    do_tunnelblick(name, remote, login, true)
+  end
+end
 
-    FileUtils.cp(File.join(SSL_CERT_DIR, "ca.crt"),
-                 File.join(path, "ca.crt"))
-    FileUtils.cp(File.join(SSL_CERT_DIR, "#{login}.crt"),
-                 File.join(path, "#{login}.crt"))
-    FileUtils.cp(File.join(SSL_CERT_DIR, "#{login}.key"),
-                 File.join(path, "#{login}.key"))
+def do_tunnelblick(name, remote, login, default)
+  erb = Erubis::Eruby.new(File.read(File.join(TEMPLATES_DIR, 'openvpn.conf')))
+  archive = "#{ROOT}/#{name} (#{login}).zip"
 
-    puts ">>> Configuration is at #{path}"
-    system("open '#{path}' || :")
+  tmpdir = Dir.mktmpdir
+  path = File.join(tmpdir, "#{name}.tblk")
+  FileUtils.mkdir_p(path)
+
+  File.open(File.join(path, "config.ovpn"), "w") do |f|
+    f.puts(erb.result(remote: remote, login: login, default: default))
   end
 
+  FileUtils.cp(File.join(SSL_CERT_DIR, "ca.crt"),
+               File.join(path, "ca.crt"))
+  FileUtils.cp(File.join(SSL_CERT_DIR, "#{login}.crt"),
+               File.join(path, "#{login}.crt"))
+  FileUtils.cp(File.join(SSL_CERT_DIR, "#{login}.key"),
+               File.join(path, "#{login}.key"))
+
+  Dir.chdir(tmpdir) do |path|
+    system("apack '#{archive}' '#{name}.tblk'")
+  end
+
+  puts ">>> Configuration is at #{archive}"
 end

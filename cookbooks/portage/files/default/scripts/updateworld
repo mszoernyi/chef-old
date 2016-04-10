@@ -58,6 +58,12 @@ fi
 # dummy run emerge first, so global updates don't clutter the output.
 emerge --info &>/dev/null
 
+# update portage
+emerge sys-apps/portage -u1
+
+# run chef to fixup stuff that portage broke
+run_chef
+
 # remove packages that do not exist in the repository
 installed=$(mktemp)
 qlist -IC | sort -u > ${installed}
@@ -94,9 +100,9 @@ rm -f /usr/lib64/libxcb.so.1.1.0
 
 # install updates
 if [[ -z $UPDATEWORLD_DONT_ASK ]]; then
-	emerge @world --rebuilt-binaries -NDua
+	emerge @world --rebuilt-binaries -NDua --jobs=4 || :
 else
-	emerge @world --rebuilt-binaries -NDu
+	emerge @world --rebuilt-binaries -NDu --jobs=4 || :
 fi
 
 # force latest gcc version
@@ -120,9 +126,9 @@ run_chef
 
 # some packages may fail due to gcc/binutils update, so try this again
 if [[ -z $UPDATEWORLD_DONT_ASK ]]; then
-	emerge @world -NDua
+	emerge @world -NDua --jobs=4
 else
-	emerge @world -NDu
+	emerge @world -NDu --jobs=4
 fi
 
 # run chef to fixup stuff that portage broke

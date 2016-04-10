@@ -23,10 +23,22 @@ namespace :rc do
   desc "Reboot machines and wait until they are up"
   task :reboot do
     search("default_query:does_not_exist") do |node|
-      reboot_wait(node.name)
+      system("ssh -t #{fqdn} '/usr/bin/sudo -i reboot'")
       puts "Sleeping 5 minutes to slow down reboot loop"
       sleep 5*60
     end
   end
 
+  desc "Run custom script"
+  task :script, :name, :params do |t, args|
+    script = File.join(ROOT, 'scripts', args.name)
+    raise "script '#{args.name}' not found" if not File.exist?(script)
+    search("*:*") do |node|
+      if ENV.key?('NOSUDO')
+        system("cat '#{script}' | ssh #{node.name} '/bin/bash -s'")
+      else
+        system("cat '#{script}' | ssh #{node.name} '/usr/bin/sudo -i /bin/bash -s #{args.params}'")
+      end
+    end
+  end
 end

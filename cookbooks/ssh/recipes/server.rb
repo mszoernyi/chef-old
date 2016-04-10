@@ -16,8 +16,9 @@ service "sshd" do
 end
 
 execute "root-ssh-key" do
-  command "ssh-keygen -f /root/.ssh/id_rsa -N '' -C root@#{node[:fqdn]}"
-  creates "/root/.ssh/id_rsa"
+  command "ssh-keygen -f /root/.ssh/id_ed25519 -t ed25519 -o -a 100 -N '' -C root@#{node[:fqdn]}"
+  creates "/root/.ssh/id_ed25519"
+  not_if { debian_based? }
 end
 
 if nagios_client?

@@ -14,6 +14,7 @@ default[:php][:default_use_flags] = %w(-*
   hash
   iconv
   imap
+  intl
   json
   mysql
   mysqli
@@ -21,7 +22,9 @@ default[:php][:default_use_flags] = %w(-*
   nls
   pcre
   pdo
+  phar
   posix
+  readline
   reflection
   session
   simplexml
@@ -34,6 +37,9 @@ default[:php][:default_use_flags] = %w(-*
   truetype
   unicode
   xml
+  xmlreader
+  xmlwriter
+  xslt
   zip
   zlib
 )
@@ -50,8 +56,8 @@ default[:php][:max_execution_time] = "30"
 default[:php][:max_input_nesting_level] = "64"
 default[:php][:max_input_time] = "60"
 default[:php][:max_input_vars] = "1000"
-default[:php][:memory_limit] = "128M"
-default[:php][:post_max_size] = "8M"
+default[:php][:memory_limit] = "-1"
+default[:php][:post_max_size] = "32M"
 default[:php][:realpath_cache_size] = "16k"
 default[:php][:register_argc_argv] = "Off"
 default[:php][:register_globals] = "Off"
@@ -64,14 +70,13 @@ default[:php][:session][:save_path] = "#{node[:php][:tmp_dir]}/sessions"
 default[:php][:session][:use_only_cookies] = "1"
 
 # upload settings
-default[:php][:upload][:max_filesize] = "2M"
+default[:php][:upload][:max_filesize] = "32M"
 default[:php][:upload][:tmp_dir] = "#{node[:php][:tmp_dir]}/uploads"
 
 # paths
 default[:php][:slot] = "5.5"
 default[:php][:install_path] = "/usr/lib/php#{node[:php][:slot]}"
 default[:php][:php_config] = "/usr/bin/php-config"
-default[:php][:extension_dir] = %x(#{node[:php][:php_config]} --extension-dir 2>/dev/null || :).chomp
 
 # create default fpm pool
 default[:php][:fpm][:conf] = "/etc/php/fpm-php#{node[:php][:slot]}/php-fpm.conf"

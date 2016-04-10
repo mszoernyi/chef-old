@@ -82,13 +82,33 @@ namespace :ssl do
     end
 
     if ENV['BATCH'] != "1" and not Process.euid == 0
-      knife :upload, ["cookbooks/certificates"]
+      knife :cookbook, ["upload", "certificates"]
     end
   end
 
   desc "Create a new SSL certificate"
   task :cert, :cn do |t, args|
     Rake::Task["ssl:do_cert"].execute(args)
+  end
+
+  desc "Sign a CSR with our CA"
+  task :sign, :cn do |t, args|
+    cn = args.cn
+    keyfile = cn.gsub("*", "wildcard")
+
+    FileUtils.mkdir_p(SSL_CERT_DIR)
+
+    unless File.exist?(File.join(SSL_CERT_DIR, "#{keyfile}.crt"))
+      puts("** Signing SSL Certificate Request for #{cn}")
+      sh("openssl ca -config #{SSL_CONFIG_FILE} -in /dev/stdin -out #{SSL_CERT_DIR}/#{keyfile}.crt")
+      sh("chmod 644 #{SSL_CERT_DIR}/#{keyfile}.crt")
+    else
+      puts("** SSL Certificate for #{cn} already exists, skipping.")
+    end
+
+    if ENV['BATCH'] != "1" and not Process.euid == 0
+      knife :cookbook, ["upload", "certificates"]
+    end
   end
 
   task :create_missing_certs do
@@ -101,7 +121,7 @@ namespace :ssl do
     end
 
     ENV['BATCH'] = old_batch
-    knife :upload, ["cookbooks/certificates"]
+    knife :cookbook, ["upload", "certificates"]
   end
 
   desc "Revoke an existing SSL certificate"
@@ -115,7 +135,7 @@ namespace :ssl do
       sh("openssl ca -config #{SSL_CONFIG_FILE} -gencrl -out #{SSL_CERT_DIR}/ca.crl")
       cn = args.cn.gsub("*", "wildcard")
       sh("rm #{SSL_CERT_DIR}/#{cn}.{csr,crt,key}")
-      knife :upload, ["cookbooks/certificates"] unless ENV["BATCH"]
+      knife :cookbook, ["upload", "certificates"] unless ENV["BATCH"]
     end
   end
 
@@ -135,7 +155,7 @@ namespace :ssl do
     end
 
     ENV['BATCH'] = old_batch
-    knife :upload, ["cookbooks/certificates"]
+    knife :cookbook, ["upload", "certificates"]
 
     sh("git add -A ca/ site-cookbooks/certificates || :")
     sh("git commit -q -m 'renew certificates' || :")

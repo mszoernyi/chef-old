@@ -65,8 +65,8 @@ if root?
     mode "0755"
   end
 
-  file "/etc/portage/make.profile/parent" do
-    content "#{node[:portage][:profile]}\n#{node[:portage][:overlays].map { |name, path| "#{path}/profiles/#{name}" }.join("\n")}"
+  template "/etc/portage/make.profile/parent" do
+    source "make.profile.parent"
     owner "root"
     group "root"
     mode "0644"
@@ -121,9 +121,52 @@ if root?
   end
 
   directory "#{node[:portage][:confdir]}/repos.conf" do
-    action :delete
-    recursive true
-    only_if { File.directory?("#{node[:portage][:confdir]}/repos.conf") }
+    owner "root"
+    group "root"
+    mode "0755"
+  end
+
+  directory "#{node[:portage][:confdir]}/repo.postsync.d" do
+    owner "root"
+    group "root"
+    mode "0755"
+  end
+
+  if zentoo?
+    %w(
+      sync_cache
+      sync_dtd
+      sync_glsa
+      sync_news
+      sync_projects_xml
+    ).each do |script|
+      template "#{node[:portage][:confdir]}/repo.postsync.d/#{script}" do
+        source "#{script}.sh"
+        owner "root"
+        group "root"
+        mode "0755"
+      end
+    end
+
+    directory "/usr/portage" do
+      action :delete
+      recursive true
+      not_if { ::File.exist?("/usr/portage/.git") }
+      notifies :run, "execute[eix-sync]", :immediately
+    end
+
+    execute "eix-sync" do
+      command "eix-sync"
+      action :nothing
+      notifies :create, "ruby_block[update-packages-cache]", :immediately
+    end
+
+    ruby_block "update-packages-cache" do
+      action :nothing
+      block do
+        Chef::Provider::Package::Portage.new(nil, nil).packages_cache_from_eix!
+      end
+    end
   end
 
   %w(

@@ -1,11 +1,15 @@
 if gentoo?
-  package "dev-java/oracle-jdk-bin" do
-    version "1.7*"
-  end
-
-  package "dev-java/maven-bin"
-
   if root?
+    portage_overlay "java" do
+      repository "https://github.com/zentoo/java-overlay"
+    end
+
+    package "dev-java/oracle-jdk-bin" do
+      version "1.7*"
+    end
+
+    package "dev-java/maven-bin"
+
     execute "eselect-java-vm" do
       command "eselect java-vm set system oracle-jdk-bin-1.7"
       not_if { %x(eselect --brief java-vm show system).strip == "oracle-jdk-bin-1.7" }
@@ -26,7 +30,7 @@ if gentoo?
     end
 
     remote_file "/usr/lib/jvm/jolokia.jar" do
-      source "http://labs.consol.de/maven/repository/org/jolokia/jolokia-jvm/1.2.2/jolokia-jvm-1.2.2-agent.jar"
+      source "https://repo1.maven.org/maven2/org/jolokia/jolokia-jvm/1.2.2/jolokia-jvm-1.2.2-agent.jar"
     end
   end
 end

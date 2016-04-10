@@ -1,3 +1,5 @@
+include_recipe "nepal::overlay"
+
 # remove old attributes
 node.normal_attrs[:php].delete(:extension_dir)
 
@@ -67,7 +69,7 @@ node.load_attribute_by_short_filename('default', 'php') if node.respond_to?(:loa
   end
 end
 
-directory node[:php][:extension_dir] do
+directory node.php_extension_dir do
   owner "root"
   group "root"
   mode "0755"

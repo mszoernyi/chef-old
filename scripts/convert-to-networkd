@@ -1,0 +1,43 @@
+#!/bin/bash
+
+if [[ $# -ne 2 ]]; then
+	echo "Usage: ./convert-to-networkd.sh <public interface> <private interface>"
+	exit 1
+fi
+
+ipaddress=$(ip addr show dev $1 | grep 'inet .*global' | awk '{ print $2 }')
+gateway=$(ip route list | grep default | head -n1 | awk '{ print $3 }')
+
+rm -v /etc/systemd/network/*
+
+cat > /etc/systemd/network/default.network <<EOF
+[Match]
+Name=$1
+
+[Network]
+Address=${ipaddress}
+Gateway=${gateway}
+EOF
+
+ip2=$(echo ${ipaddress} | awk -F/ '{ print $1 }' | awk -F. '{ print $2 }')
+ip3=$(echo ${ipaddress} | awk -F/ '{ print $1 }' | awk -F. '{ print $3 }')
+ip4=$(echo ${ipaddress} | awk -F/ '{ print $1 }' | awk -F. '{ print $4 }')
+local_ipaddress=10.${ip2}.${ip3}.${ip4}
+
+cat > /etc/systemd/network/private.network <<EOF
+[Match]
+Name=$2
+
+[Network]
+Address=${local_ipaddress}/8
+EOF
+
+if [[ -e /etc/netctl/$1 ]]; then
+	netctl disable $1
+	rm -f /etc/netctl/$1
+fi
+
+ip addr flush $2
+
+systemctl daemon-reload
+systemctl restart systemd-networkd

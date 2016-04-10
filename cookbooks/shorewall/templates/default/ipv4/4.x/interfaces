@@ -1,0 +1,24 @@
+#
+# Shorewall version 4 - Interfaces File
+#
+# For information about entries in this file, type "man shorewall-interfaces"
+#
+# The manpage is also online at
+# http://www.shorewall.net/manpages/shorewall-interfaces.html
+#
+###############################################################################
+#ZONE	INTERFACE	BROADCAST	OPTIONS
+
+<% if node[:network][:default_interface_bridged] %>
+net <%= node[:network][:default_interface] %> detect bridge
+<% else %>
+net <%= node[:network][:default_interface] %>
+<% end %>
+
+<% if node[:network][:interfaces]["eth1"] %>
+loc eth1
+<% end %>
+
+<% node[:shorewall][:interfaces].each do |zone, interface| %>
+<%= zone %> <%= interface %>
+<% end %>

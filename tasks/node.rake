@@ -14,12 +14,13 @@ namespace :node do
     args.with_defaults(env: 'production', run_list: 'role[base]')
     stdout, stderr, status = knife_capture :node_show, [args.fqdn, '-F', 'json']
     raise "node already exists" if status == 0
-    stdout, stderr, status = knife :node_create, [args.fqdn, '-d', '-E', args.env]
+    stdout, stderr, status = knife :node_create, [args.fqdn, '-d']
     if status != 0
       STDOUT.write(stdout)
       STDERR.write(stderr)
       raise "failed to get node data"
     end
+    knife :node_environment_set, [args.fqdn, args.env]
     knife :node_run_list_set, [args.fqdn] + args.run_list.split(' ')
   end
 
@@ -43,15 +44,34 @@ namespace :node do
     zendns_add_record(args.fqdn, ipaddress)
     run_task('node:checkdns', args.fqdn, ipaddress)
 
-    sh("ssh #{args.old} sudo rm -f /etc/chef/client.pem /etc/chef/client.rb")
-    sh("echo root:tux | ssh #{args.old} sudo chpasswd")
-    sh("ssh #{args.old} sudo sed -i -e '/PasswordAuthentication/s/no/yes/g' /etc/ssh/sshd_config")
-    sh("ssh #{args.old} sudo sed -i -e '/PermitRootLogin/s/no/yes/g' /etc/ssh/sshd_config")
-    sh("ssh #{args.old} sudo systemctl reload sshd")
+    sh("ssh #{args.old} sudo rm -f /etc/chef/client.pem")
+    sh("ssh #{args.old} sudo sed -i -e 's/#{args.old}/#{args.fqdn}/g' /etc/chef/client.rb")
+    sh("ssh #{args.old} sudo sed -i -e 's/#{args.old}/#{args.fqdn}/g' /etc/hosts")
 
-    ENV['NO_UPDATEWORLD'] = "1"
+    old_hostname = args.old.split('.').first
+    hostname = args.fqdn.split('.').first
+    sh("ssh #{args.old} sudo sed -i -e 's/#{old_hostname}/#{hostname}/g' /etc/hosts")
+    sh("ssh #{args.old} sudo hostname #{hostname}")
+
     run_task('node:copy', args.old, args.fqdn)
-    run_task('node:bootstrap', args.fqdn, ipaddress)
+
+    tmpfile = Tempfile.new('chef_client_key')
+    stdout, stderr, status = knife_capture :client_create, [args.fqdn, '-d', '-f', tmpfile.path]
+    if status != 0
+      STDOUT.write(stdout)
+      STDERR.write(stderr)
+      raise "failed to create new client key for node"
+    end
+
+    sh("cat #{tmpfile.path} | ssh #{args.old} 'sudo tee /etc/chef/client.pem'")
+    tmpfile.unlink
+
+    ENV['BATCH'] = "1"
+    run_task('ssl:do_cert', args.fqdn)
+    knife :upload, ["cookbooks/certificates"]
+
+    sh("ssh #{args.old} sudo chef-client")
+
     run_task('node:delete', args.old)
   end
 
@@ -69,6 +89,9 @@ namespace :node do
     args.with_defaults(:profile => 'generic-two-disk-md')
     raise "missing parameters!" unless args.fqdn && args.ipaddress
 
+    # load profile
+    profile = File.read(File.join(ROOT, "config/quickstart", "#{args.profile}.sh"))
+
     # create DNS/rDNS records
     run_task('node:checkdns', args.fqdn, args.ipaddress)
 
@@ -81,12 +104,11 @@ namespace :node do
     sshlive(args.ipaddress, ENV['PASSWORD'], tmpfile.path)
     tmpfile.unlink
 
-    # wait until machine is up again
-    wait_with_ping(args.ipaddress, false)
-    wait_with_ping(args.ipaddress, true)
+    # reboot & wait until machine is up again
+    sshlive(args.fqdn, ENV['PASSWORD'], "reboot")
+    wait_for_ssh(args.fqdn, false)
 
     # run normal bootstrap
-    ENV['REBOOT'] = "1"
     run_task('node:bootstrap', args.fqdn, args.ipaddress)
   end
 
@@ -97,11 +119,18 @@ namespace :node do
     ENV['DISTRO'] ||= "gentoo"
     ENV['ROLE'] ||= "bootstrap"
     ENV['ENVIRONMENT'] ||= "production"
+
     run_task('node:checkdns', args.fqdn, args.ipaddress)
     run_task('ssl:do_cert', args.fqdn)
     knife :upload, ["cookbooks/certificates"]
-    key = File.join(ROOT, "tasks/support/id_rsa")
-    sh("knife bootstrap #{args.fqdn} --no-host-key-verify --no-node-verify-api-cert --node-ssl-verify-mode none -t #{ENV['DISTRO']} -P #{args.password} -r 'role[#{ENV['ROLE']}]' -E #{ENV['ENVIRONMENT']} -i #{key}")
+
+    sh("knife node create -d #{args.fqdn}")
+    sh("knife node environment set #{args.fqdn} #{ENV['ENVIRONMENT']}")
+    sh("knife node run list set #{args.fqdn} 'role[#{ENV['ROLE']}]'")
+    sh("knife bootstrap #{args.fqdn} --no-host-key-verify --no-node-verify-api-cert --node-ssl-verify-mode none -t #{ENV['DISTRO']} -P #{args.password} -r 'role[#{ENV['ROLE']}]' -E #{ENV['ENVIRONMENT']}")
+
+    ENV['REBOOT'] = "1"
+    run_task('node:updateworld', args.fqdn)
   end
 
   desc "Update node packages"
@@ -109,8 +138,16 @@ namespace :node do
     system("ssh -t #{args.fqdn} '/usr/bin/sudo -i eix-sync -q'")
     env = "/usr/bin/env UPDATEWORLD_DONT_ASK=1" if ENV['BATCH']
     system("ssh -t #{args.fqdn} '/usr/bin/sudo -i #{env} /usr/local/sbin/updateworld'")
-    reboot_wait(args.fqdn) if ENV['REBOOT']
-    system("ssh -t #{args.fqdn} '/usr/bin/sudo -i #{env} chef-client'")
+    if ENV['REBOOT']
+      system("ssh -t #{args.fqdn} '/usr/bin/sudo -i reboot'")
+      wait_for_ssh(args.fqdn)
+      system("ssh -t #{args.fqdn} '/usr/bin/sudo -i #{env} chef-client'")
+    end
+  end
+
+  desc "Convert node to networkd with private interface"
+  task :networkd, :fqdn, :public, :private do |t, args|
+    sh("cat scripts/convert-to-networkd.sh | ssh #{args.fqdn} 'sudo bash -x -s #{args.public} #{args.private}'")
   end
 
   # private

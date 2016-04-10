@@ -17,11 +17,9 @@ if gentoo?
       mode "0644"
     end
 
-    cookbook_file "/usr/lib/tmpfiles.d/etc.conf" do
-      source "etc.conf"
-      owner "root"
-      group "root"
-      mode "0644"
+    # and shutdown on SIGPWR
+    link "/etc/systemd/system/sigpwr.target" do
+      to "/usr/lib/systemd/system/poweroff.target"
     end
 
     # timesyncd
@@ -49,14 +47,6 @@ if gentoo?
       owner "root"
       group "root"
       mode "0644"
-    end
-
-    file "/etc/systemd/network/default.network" do
-      content "[Match]\nName=eth0\n\n[Network]\nDHCP=v4\n"
-      owner "root"
-      group "root"
-      mode "0644"
-      not_if { File.exist?("/etc/systemd/network/default.network") }
     end
 
     service "systemd-networkd.service" do
@@ -94,6 +84,71 @@ if gentoo?
 
     service "systemd-stop-user-sessions.service" do
       action :enable
+      provider Chef::Provider::Service::Systemd
+    end
+
+    # system timers
+    systemd_timer "makewhatis" do
+      schedule %w(OnCalendar=daily)
+      unit({
+        command: "/usr/sbin/makewhatis -u",
+        user: "root",
+        group: "root",
+      })
+    end
+
+    systemd_timer "logrotate" do
+      schedule %w(OnCalendar=daily)
+      unit({
+        command: "/usr/sbin/logrotate --verbose /etc/logrotate.conf",
+        user: "root",
+        group: "root",
+      })
+    end
+
+    # emulate crontab support
+    cookbook_file "/usr/lib/systemd/system-generators/systemd-crontab-generator" do
+      source "systemd-crontab-generator"
+      owner "root"
+      group "root"
+      mode "0755"
+    end
+
+    cookbook_file "/usr/lib/systemd/system/cron.target" do
+      source "cron.target"
+      owner "root"
+      group "root"
+      mode "0644"
+    end
+
+    cookbook_file "/usr/bin/systemd-crontab-update" do
+      source "systemd-crontab-update"
+      owner "root"
+      group "root"
+      mode "0755"
+    end
+
+    cookbook_file "/usr/bin/crontab" do
+      source "crontab"
+      owner "root"
+      group "root"
+      mode "0755"
+    end
+
+    directory "/var/spool/cron" do
+      owner "root"
+      group "root"
+      mode "0755"
+    end
+
+    file "/var/spool/cron/root" do
+      owner "root"
+      group "root"
+      mode "0644"
+    end
+
+    service "cron.target" do
+      action [:enable, :start]
       provider Chef::Provider::Service::Systemd
     end
   end
