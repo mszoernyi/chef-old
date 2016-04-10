@@ -26,10 +26,13 @@
 	ui = auto
 [branch]
 	autosetupmerge = true
+[pull]
+	ff = only
 [push]
-	default = tracking
+	default = simple
 [diff]
 	renames = true
+	renameLimit = 32767
 [core]
 	excludesfile = <%= node[:git][:exfile] %>
 <% if node[:git][:github][:user] %>
