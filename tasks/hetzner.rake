@@ -13,10 +13,9 @@ begin
 
     desc "enable rescue mode, reset machine and login"
     task :rescue, :fqdn do |t, args|
-      search("fqdn:#{args.fqdn}") do |node|
-        password = hetzner_enable_rescue_wait(node[:ipaddress])
-        sshlive(args.fqdn, password)
-      end
+      ip = Resolv.getaddress(args[:fqdn])
+      password = hetzner_enable_rescue_wait(ip)
+      sshlive(ip, password) if password
     end
 
     desc "enable rescue mode and reinstall"

@@ -18,7 +18,7 @@ end
 def ovh_enable_rescue_wait(ipaddress)
   name = ovh_servers[ipaddress]['name']
   puts "Putting #{name} into rescue mode"
-  ovh.put("/dedicated/server/#{name}", 'bootId' => 22)
+  ovh.put("/dedicated/server/#{name}", 'bootId' => 1122)
   ovh_reset(ipaddress)
   wait_for_ssh(name, false)
   ovh.put("/dedicated/server/#{name}", 'bootId' => 1)
