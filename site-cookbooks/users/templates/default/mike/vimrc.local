@@ -59,16 +59,16 @@ NeoBundle 'elzr/vim-json'
 autocmd BufNewFile,BufRead *.json set filetype=json
 autocmd BufNewFile,BufRead *.jsonp set filetype=json
 
-NeoBundle 'kchmck/vim-coffee-script'
-autocmd BufNewFile,BufRead *.coffee set filetype=coffee
+"NeoBundle 'kchmck/vim-coffee-script'
+"autocmd BufNewFile,BufRead *.coffee set filetype=coffee
 
-NeoBundle 'heartsentwined/vim-emblem'
-autocmd BufNewFile,BufRead *.emblem set filetype=emblem
-autocmd FileType emblem set tabstop=2|set shiftwidth=2|set expandtab
+"NeoBundle 'heartsentwined/vim-emblem'
+"autocmd BufNewFile,BufRead *.emblem set filetype=emblem
+"autocmd FileType emblem set tabstop=2|set shiftwidth=2|set expandtab
 
-NeoBundle 'heartsentwined/vim-ember-script'
-autocmd BufNewFile,BufRead *.em set filetype=ember-script
-autocmd FileType ember-script set tabstop=2|set shiftwidth=2|set expandtab
+"NeoBundle 'heartsentwined/vim-ember-script'
+"autocmd BufNewFile,BufRead *.em set filetype=ember-script
+"autocmd FileType ember-script set tabstop=2|set shiftwidth=2|set expandtab
 
 NeoBundle 'mustache/vim-mustache-handlebars'
 let g:mustache_abbreviations = 1
@@ -79,7 +79,7 @@ NeoBundle 'othree/yajs.vim'
 
 " Syntastic / linter
 NeoBundle 'scrooloose/syntastic'
-let g:syntastic_javascript_checkers = ['jscs']
+let g:syntastic_javascript_checkers = ['eslint']
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
@@ -144,8 +144,8 @@ endif
 " Tagbar is a vim plugin for browsing the tags of source code files. It
 " provides a sidebar that displays the ctags-generated tags of the current
 " file, ordered by their scope.
-NeoBundle 'majutsushi/tagbar'
-nnoremap <silent> <F9> :TagbarOpenAutoClose<cr>
+"NeoBundle 'majutsushi/tagbar'
+"nnoremap <silent> <F9> :TagbarOpenAutoClose<cr>
 
 " a Git wrapper so awesome, it should be illegal
 NeoBundle 'tpope/vim-fugitive'
@@ -199,8 +199,9 @@ nmap <leader>cl <Plug>NERDComToggleComment
 xmap <leader>cl <Plug>NERDComToggleComment
 
 " A simple Vim plugin to switch segments of text with predefined replacements
-"NeoBundle 'AndrewRadev/switch.vim'
-"nnoremap - :Switch<cr>
+" `-` or `:Switch`
+NeoBundle 'AndrewRadev/switch.vim'
+nnoremap - :Switch<cr>
 
 " A vim plugin that simplifies the transition between multiline and
 " single-line code
@@ -266,37 +267,11 @@ noremap <Left> <NOP>
 noremap <Right> <NOP>
 " }}}
 
-"Always have a nice view for vim split windows
-NeoBundle 'zhaocai/GoldenView.Vim'
-let g:goldenview__enable_default_mapping = 0
-nmap <silent> <leader>ms <Plug>GoldenViewSplit
-nmap <silent> <leader>mm <Plug>GoldenViewSwitchMain
-nmap <silent> <leader>mn <Plug>GoldenViewNext
-nmap <silent> <leader>mp <Plug>GoldenViewPrevious
-nmap <silent> <leader>mt <Plug>GoldenViewSwitchToggle
-
 " some focus and escape code optimizations for iterm/tmux
 NeoBundle 'sjl/vitality.vim'
 let g:vitality_always_assume_iterm = 1
 au BufLeave,FocusLost * silent! update
 set timeoutlen=1000 ttimeoutlen=0
-
-" A vim plugin that simplifies the transition between multiline and
-" single-line code
-NeoBundle 'AndrewRadev/splitjoin.vim'
-function! s:try(cmd, default)
-  if exists(':' . a:cmd) && !v:count
-    let tick = b:changedtick
-    exe a:cmd
-    if tick == b:changedtick
-      execute 'normal! '.a:default
-    endif
-  else
-    execute 'normal! '.v:count.a:default
-  endif
-endfunction
-nnoremap <silent> J :<C-U>call <SID>try('SplitjoinJoin', 'J')<CR>
-nnoremap <silent> S :<C-U>call <SID>try('SplitjoinSplit', 'S')<CR>
 
 NeoBundle 'editorconfig/editorconfig-vim'
 
