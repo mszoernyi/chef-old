@@ -19,19 +19,18 @@ template "/var/app/druid/bin/druid-overlord" do
   owner "root"
   group "root"
   mode "0755"
-  notifies :restart, "service[druid-overlord]"
   variables service: "overlord"
 end
 
 systemd_unit "druid-overlord.service" do
   template "druid.service"
-  notifies :restart, "service[druid-overlord]"
 end
 
 service "druid-overlord" do
   action [:enable, :start]
+  subscribes :restart, "template[/var/app/druid/config/_common/common.runtime.properties]"
   subscribes :restart, "template[/var/app/druid/config/overlord/runtime.properties]"
   subscribes :restart, "template[/var/app/druid/config/log4j.properties]"
   subscribes :restart, "template[/var/app/druid/bin/druid-overlord]"
-  subscribes :restart, "systemd_unit[druid-overlord]"
+  subscribes :restart, "systemd_unit[druid-overlord.service]"
 end

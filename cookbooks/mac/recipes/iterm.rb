@@ -1,7 +1,17 @@
 if mac_os_x?
   mac_package "iTerm" do
-    source "https://iterm2.com/downloads/stable/iTerm2_v2_0.zip"
+    source "https://iterm2.com/downloads/stable/iTerm2-2_1_4.zip"
     type "zip_app"
+  end
+
+  execute "fc-cache-menlo-powerline" do
+    command "/opt/X11/bin/fc-cache"
+    action :nothing
+  end
+
+  cookbook_file "#{node[:homedir]}/Library/Fonts/Menlo-Powerline.otf" do
+    source "Menlo+Regular+for+Powerline.otf"
+    notifies :run, "execute[fc-cache-menlo-powerline]", :immediately
   end
 
   execute "iterm-solarized-dark-open" do

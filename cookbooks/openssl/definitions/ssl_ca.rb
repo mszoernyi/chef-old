@@ -1,6 +1,14 @@
 define :ssl_ca, :symlink => false, :owner => "root", :group => "root", :mode => "0444" do
   include_recipe "openssl"
 
+  directory "#{params[:name]}-#{rrand}" do
+    path File.dirname(params[:name])
+    owner params[:owner]
+    group params[:group]
+    mode "0755"
+    recursive true
+  end
+
   %w(crt crl).each do |t|
     cookbook_file "#{params[:name]}.#{t}" do
       owner params[:owner]

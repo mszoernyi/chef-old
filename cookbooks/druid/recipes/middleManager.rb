@@ -19,22 +19,21 @@ template "/var/app/druid/bin/druid-middleManager" do
   owner "root"
   group "root"
   mode "0755"
-  notifies :restart, "service[druid-middleManager]"
   variables service: "middleManager"
 end
 
 systemd_unit "druid-middleManager.service" do
   template "druid.service"
   variables service: "middleManager"
-  notifies :restart, "service[druid-middleManager]"
 end
 
 service "druid-middleManager" do
   action [:enable, :start]
+  subscribes :restart, "template[/var/app/druid/config/_common/common.runtime.properties]"
   subscribes :restart, "template[/var/app/druid/config/middleManager/runtime.properties]"
   subscribes :restart, "template[/var/app/druid/config/log4j.properties]"
   subscribes :restart, "template[/var/app/druid/bin/druid-middleManager]"
-  subscribes :restart, "systemd_unit[druid-middleManager]"
+  subscribes :restart, "systemd_unit[druid-middleManager.service]"
 end
 
 systemd_timer "druid-middleManager-cleanup" do
