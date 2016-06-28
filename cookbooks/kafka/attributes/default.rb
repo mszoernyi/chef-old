@@ -4,6 +4,7 @@ default[:kafka][:git][:revision] = "0.8.2.1"
 default[:kafka][:storage] = "/var/app/kafka/storage"
 
 default[:kafka][:private] = false
+default[:kafka][:private_hostname] = "kafka.#{node[:fqdn]}"
 
 default[:kafka][:zookeeper][:root] = "/kafka.#{node.cluster_name}"
 default[:kafka][:zookeeper][:cluster] = node.cluster_name
