@@ -148,6 +148,9 @@ alias sshlive='ssh -l root -o "StrictHostKeyChecking no" -o "UserKnownHostsFile 
 # easy port listing
 alias ports="netstat -tulpen"
 
+# sane default output for bwm-ng
+alias bwm-ng="bwm-ng -u bits -d 1 -T rate"
+
 # show interrupt numbers
 irqs() {
 	tail -n +2 /proc/interrupts | awk '{ print $1 $NF }'
