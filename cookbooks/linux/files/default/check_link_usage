@@ -4,8 +4,8 @@ source /usr/lib/nagios/plugins/utils.sh
 
 # defaults
 interface="all"
-rx_warn=600
-tx_warn=600
+rx_warn=750
+tx_warn=750
 rx_crit=850
 tx_crit=850
 
