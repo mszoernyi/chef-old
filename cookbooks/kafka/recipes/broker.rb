@@ -81,5 +81,4 @@ if nagios_client?
   nagios_plugin "check_kafka_lag" do
     source "check_kafka_lag.rb"
   end
-
 end
