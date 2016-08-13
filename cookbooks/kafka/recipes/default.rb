@@ -1,7 +1,5 @@
 include_recipe "java"
 
-package "dev-java/gradle-bin"
-
 deploy_skeleton "kafka"
 
 deploy_application "kafka" do
@@ -9,13 +7,6 @@ deploy_application "kafka" do
   revision node[:kafka][:git][:revision]
 
   before_symlink do
-    execute "kafka-gradle" do
-      command "/usr/bin/gradle"
-      cwd release_path
-      user "kafka"
-      group "kafka"
-    end
-
     execute "kafka-build" do
       command "#{release_path}/gradlew jar"
       cwd release_path
