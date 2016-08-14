@@ -1,16 +1,5 @@
 include_recipe "hadoop2"
 
-%w(
-  /var/app/hadoop2/pig
-  /var/app/hadoop2/pig/contrib
-).each do |dir|
-  directory dir do
-    owner "hadoop2"
-    group "root"
-    mode "0775"
-  end
-end
-
 pig_tar = "https://d2ljt3w7wnnuw2.cloudfront.net/pig-#{node[:hadoop2][:pig][:version]}-src.tar.gz"
 pig_basedir = "/var/app/hadoop2/pig"
 pig_dir = "#{pig_basedir}/pig-#{node[:hadoop2][:pig][:version]}-src"
