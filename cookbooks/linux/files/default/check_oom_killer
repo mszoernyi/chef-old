@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [[ -e /tmp/.check_oom_killer ]]; then
-	set -- $(</tmp/.check_oom_killer)
+if [[ -e /var/tmp/.check_oom_killer ]]; then
+	set -- $(</var/tmp/.check_oom_killer)
 else
 	set -- @0
 fi
@@ -12,7 +12,7 @@ until=@$(date +%s)
 incidents=$(journalctl SYSLOG_IDENTIFIER=kernel --reverse --quiet --no-pager --since=${since} --until=${until} | fgrep 'Out of memory: Kill process')
 
 if [[ -z ${incidents} ]]; then
-	echo ${until} > /tmp/.check_oom_killer
+	echo ${until} > /var/tmp/.check_oom_killer
 	echo "No incidents since last ack"
 	exit 0
 else
