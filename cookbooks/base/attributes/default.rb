@@ -1,7 +1,7 @@
 # cluster support
 default[:chef_domain] = node[:domain]
 
-if match = node[:fqdn].sub(node[:chef_domain], '').match(/^(.+?)\.(.+?)\.$/)
+if !development? && match = node[:fqdn].sub(node[:chef_domain], '').match(/^(.+?)\.(.+?)\.$/)
   default[:cluster][:name] = match[2]
   default[:cluster][:domain] = "#{node.cluster_name}.#{node[:chef_domain]}"
   default[:parents] = [node[:cluster][:domain]]
