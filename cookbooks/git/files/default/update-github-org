@@ -28,14 +28,16 @@ gh = Github.new({
   auto_pagination: true,
 })
 
+sh("update-deps")
+
 gh.repos.list(org: org).sort_by { |r| r[:name] }.each do |repo|
-  if File.exist?(repo[:name])
-    puts ">>> Fetching #{org}/#{repo[:name]}"
-    Dir.chdir(repo[:name]) do
-      sh("git fetch -a")
-    end
-  else
+  if !File.exist?(repo[:name])
     puts ">>> Cloning #{org}/#{repo[:name]}"
     sh("git clone #{repo[:clone_url]}")
+  end
+
+  puts ">>> Fetching #{org}/#{repo[:name]}"
+  Dir.chdir(repo[:name]) do
+    sh("update-git-repo")
   end
 end
