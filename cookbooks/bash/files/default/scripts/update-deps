@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+
+# global go deps
+godep() {
+	echo "$@"
+	go get -u "$@"
+}
+
+godep github.com/Masterminds/glide
+godep github.com/alecthomas/gometalinter
+godep github.com/cespare/reflex
+godep github.com/cheekybits/genny
+godep github.com/gogo/protobuf/protoc-gen-gogofaster
+godep github.com/mailru/easyjson/...
+godep github.com/onsi/ginkgo/ginkgo
+godep github.com/pointlander/peg
+godep github.com/smartystreets/goconvey
+
+# npm/bower
+npm config set loglevel error
+npm install -g ember-cli bower >/dev/null
+npm config set loglevel warn
+
+# bundler/ruby
+gem install bundler
