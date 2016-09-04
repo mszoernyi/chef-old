@@ -5,12 +5,6 @@ set -e
 # some platforms don't have a realpath binary
 cd $(perl -e 'use Cwd "abs_path";print abs_path(shift)' $0/../../)
 
-# install rvm & bundle
-if [[ $USER != "root" ]]; then
-	bundle_exec="bundle exec"
-	./scripts/bootstrap || exit 1
-fi
-
 # load configuration & run list
 node_name=$1
 shift || :
