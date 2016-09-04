@@ -12,72 +12,42 @@ elsif mac_os_x?
   execute "sudo dscl . -create /Users/#{node[:current_user]} UserShell '/usr/local/bin/bash'"
 end
 
-directory node[:bash][:rcdir] do
+cookbook_file node[:bash][:profile] do
+  source "profile"
+  mode "0644"
+end
+
+remote_directory node[:bash][:rcdir] do
+  source "dot-bash"
+  files_mode "0644"
   mode "0755"
 end
 
 %w(
-  bash_logout
-  bashcomp-modules
-  bashcomp.sh
-  bashrc
-  color.sh
-  detect.sh
-  gentoo.sh
-  prompt.sh
+  .bash_login
+  .bash_logout
+  .bash_profile
+  .bashrc
 ).each do |f|
-  template "#{node[:bash][:rcdir]}/#{f}" do
-    source f
-    mode "0644"
+  file "#{node[:homedir]}/#{f}" do
+    action :delete
+    manage_symlink_source false
   end
 end
 
 if root?
-  template "/etc/profile" do
-    source "profile"
-    owner "root"
-    group "root"
-    mode "0644"
-  end
-
-  # always use global bashrc for root
-  %w(.bashrc .bash_profile .bash_logout).each do |f|
-    file "#{node[:homedir]}/#{f}" do
-      action :delete
-    end
-  end
-
   # most distributions use /etc/bash.bashrc and /etc/bash.bash_logout but we
-  # follow the gentoo way of putting these in /etc/bash, so we symlink these
-  # for compatibility
+  # follow the gentoo way of putting these in /etc/bash loaded via /etc/profile
   file "/etc/bash.bashrc" do
     action :delete
-    not_if { File.symlink?("/etc/bash.bashrc") }
-  end
-
-  link "/etc/bash.bashrc" do
-    to "#{node[:bash][:rcdir]}/bashrc"
+    manage_symlink_source false
   end
 
   file "/etc/bash.bash_logout" do
     action :delete
-    not_if { File.symlink?("/etc/bash.bash_logout") }
-  end
-
-  link "/etc/bash.bash_logout" do
-    to "#{node[:bash][:rcdir]}/bash_logout"
+    manage_symlink_source false
   end
 else
-  %w(.bashrc .bash_profile).each do |f|
-    link "#{node[:homedir]}/#{f}" do
-      to "#{node[:bash][:rcdir]}/bashrc"
-    end
-  end
-
-  link "#{node[:homedir]}/.bash_logout" do
-    to "#{node[:bash][:rcdir]}/bash_logout"
-  end
-
   overridable_template "#{node[:homedir]}/.bashrc.local" do
     source "bashrc.local"
     cookbook "users"
@@ -96,19 +66,10 @@ cookbook_file node[:bash][:colordiffrc] do
   mode "0644"
 end
 
-# scripts
-%w(
-  IP
-  copy
-  grab
-  mklnx
-  mktar
-  urlscript
-).each do |f|
-  cookbook_file "#{node[:script_path]}/#{f}" do
-    source "scripts/#{f}"
-    mode "0755"
-  end
+remote_directory node[:script_path] do
+  source "scripts"
+  files_mode "0755"
+  mode "0755"
 end
 
 execute "env-update" do

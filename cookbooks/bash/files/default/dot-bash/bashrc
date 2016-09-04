@@ -1,0 +1,46 @@
+# this file is sourced by all bash shells on startup
+
+# interactive shells only
+[[ $- != *i* ]] && return
+
+# prevent double loading
+[[ ${_BASHRC_LOADED} -eq 1 ]] && return
+_BASHRC_LOADED=1
+
+__print_status() {
+	[[ $- != *i* ]] && return
+	printf "\r%80s\r>>> "
+	echo -ne "$@"
+}
+
+__print_status "detect operating system"
+source "${_BASHRC_DIR}/detect.sh"
+
+__print_status "setup colors"
+source "${_BASHRC_DIR}/color.sh"
+
+__print_status "setup bash config"
+source "${_BASHRC_DIR}/config.sh"
+
+if [[ -r "${_BASHRC_DIR}/${_DISTNAME}.sh" ]]; then
+	__print_status "setup env for ${_DISTNAME}"
+	source "${_BASHRC_DIR}/${_DISTNAME}.sh"
+fi
+
+__print_status "setup bash completion"
+source "${_BASHRC_DIR}/bashcomp.sh"
+
+__print_status "setup prompt"
+source "${_BASHRC_DIR}/prompt.sh"
+
+__print_status "setup language managers"
+source "${_BASHRC_DIR}/vms.sh"
+
+__print_status "setup aliases"
+source "${_BASHRC_DIR}/alias.sh"
+
+# load local bashrc if it exists
+if [[ -e ${HOME}/.bashrc.local ]]; then
+	__print_status "load custom bashrc"
+	source ${HOME}/.bashrc.local
+fi

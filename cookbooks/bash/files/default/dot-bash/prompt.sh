@@ -236,18 +236,6 @@ __ps1_git() {
 	fi
 }
 
-__ps1_rvm() {
-	if [[ -n ${rvm_path} ]]; then
-		echo -e " ${SOLAR_CYAN}rvm:$(rvm tools identifier)${RESET}"
-	fi
-}
-
-__ps1_virtualenv() {
-	if [[ -n ${VIRTUAL_ENV} ]]; then
-		echo -e " ${SOLAR_YELLOW}env:$(basename ${VIRTUAL_ENV})${RESET}"
-	fi
-}
-
 __ps1_rc() {
 	if [[ ${1:-0} -eq 0 ]]; then
 		echo -en "${SOLAR_GREEN}0${RESET}"
@@ -262,13 +250,13 @@ else
 	USER_COLOR=${BOLD}${SOLAR_RED}
 fi
 
-PS1="\[${RESET}${USER_COLOR}\]\u"
+PS1="\r\[${RESET}${USER_COLOR}\]\u"
 PS1+="\[${RESET}\]@"
 PS1+="\[${RESET}${SOLAR_YELLOW}\]${_NODENAME}\[${RESET}\].${_DOMAINNAME}"
 PS1+=" \[${RESET}\][${COL_none}\$(__ps1_rc \$?)\[${RESET}]\]"
 PS1+=" \[${RESET}${SOLAR_YELLOW}\]\t"
 PS1+=" \[${RESET}${SOLAR_GREEN}\]\w"
-PS1+="\$(__ps1_virtualenv)\$(__ps1_rvm)\$(__ps1_git)"
+PS1+="\$(__ps1_git)"
 PS1+="\n\[${RESET}${USER_COLOR}\]\$ \[${RESET}\]"
 
 # screen/tmux title magic
