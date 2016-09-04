@@ -12,6 +12,12 @@ elsif mac_os_x?
   execute "sudo dscl . -create /Users/#{node[:current_user]} UserShell '/usr/local/bin/bash'"
 end
 
+file node[:bash][:profile] do
+  action :delete
+  manage_symlink_source false
+  only_if { File.symlink?(node[:bash][:profile]) }
+end
+
 cookbook_file node[:bash][:profile] do
   source "profile"
   mode "0644"
