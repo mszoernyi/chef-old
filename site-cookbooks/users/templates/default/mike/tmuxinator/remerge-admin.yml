@@ -1,8 +1,0 @@
-project_name: remerge-admin
-project_root: ~/projects/remerge/admin
-socket_path: /tmp/tmux
-windows:
-  - server: ember server
-  - ember: vim
-  - console:
-      - #empty

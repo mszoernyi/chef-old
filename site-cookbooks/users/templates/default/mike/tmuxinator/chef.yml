@@ -1,9 +1,0 @@
-project_name: chef
-project_root: ~/projects/own/chef
-socket_path: /tmp/tmux
-windows:
-  - editor:
-      layout: f98d,230x59,0,0[230x40,0,0,0,230x18,0,41,4]
-      panes:
-        - vim
-        - #empty
