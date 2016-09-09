@@ -43,6 +43,10 @@ if [ -z "${_PROFILE_LOADED}" ]; then
 			_BASHRC_DIR="${_BASHRC_DIR:-${HOME}/.bash}"
 		fi
 
+		if [ ! -d ${_BASHRC_DIR} ]; then
+			_BASHRC_DIR=/etc/bash
+		fi
+
 		# Newer bash ebuilds include /etc/bash/bashrc which will setup PS1
 		# including color.  We leave out color here because not all
 		# terminals support it.
