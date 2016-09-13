@@ -46,6 +46,10 @@ map <F5> :setlocal spell! spelllang=en_us<CR>
 set splitbelow
 " }}}
 
+" tabedit helpers
+nnoremap <silent> <leader>te :tabedit %<CR>
+nnoremap <silent> <leader>tc :tabclose<CR>
+
 " {{{ libraries
 NeoBundle 'vim-scripts/genutils.git'
 NeoBundle 'MarcWeber/vim-addon-mw-utils'
