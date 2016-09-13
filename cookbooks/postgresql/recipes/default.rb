@@ -4,5 +4,5 @@ end
 
 chef_gem 'pg' do
   action :install
-  compile_time true
+  compile_time false
 end

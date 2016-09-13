@@ -1,9 +1,10 @@
 default[:kafka][:git][:repository] = "https://github.com/apache/kafka"
-default[:kafka][:git][:revision] = "0.8.2.1"
+default[:kafka][:git][:revision] = "0.10.0.0"
 
 default[:kafka][:storage] = "/var/app/kafka/storage"
 
 default[:kafka][:private] = false
+default[:kafka][:private_hostname] = "kafka.#{node[:fqdn]}"
 
 default[:kafka][:zookeeper][:root] = "/kafka.#{node.cluster_name}"
 default[:kafka][:zookeeper][:cluster] = node.cluster_name

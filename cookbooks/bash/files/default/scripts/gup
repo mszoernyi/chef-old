@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+
+if ARGV.length == 0
+  puts "need project"
+  exit(0)
+end
+
+base = "../../"
+project = ARGV[0]
+
+if !File.exist?(base+project)
+  puts "invalid project #{project}"
+  exit(0)
+end
+
+sha1 = `cd #{base+project}; git rev-parse HEAD`.strip
+
+if sha1.length != 40
+  puts "Error : #{sha1}"
+  exit(0)
+end
+
+goopfile = "Goopfile.lock"
+
+if !File.exist?(goopfile)
+  puts "Goopfile.lock missing"
+  exit(0)
+end
+
+changed = false
+result = []
+File.readlines(goopfile).each do |line|
+  # check if it has what we want to update && check if old?!
+  if line.include?(project) && !line.include?(sha1)
+    changed = true
+    newline = line.gsub(/#\w+/, "##{sha1}")
+    puts "#{line.strip} -> #{newline}"
+    result << newline
+  else
+    result << line
+  end
+end
+
+exit(0) if !changed
+
+File.open(goopfile, 'w') do |file|
+  file.puts result
+end
+
+`make dep 2>/dev/null`
+#puts `git add Goopfile.lock; git commit -m "update #{project}"`

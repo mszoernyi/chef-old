@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+
+STALE_AGE = 0
+STALE_PATTERN = /\/\d+_/
+EXCLUDE_MERGED = %w(
+  master
+  production
+  staging
+  HEAD
+)
+
+def prune_origin
+  %x(git checkout -q master)
+  %x(git fetch -q origin)
+  %x(git remote prune origin)
+end
+
+def cleanup_merged
+  %x(git branch --merged master).split(/\n/).map do |row|
+    row.split(/\s+/).last
+  end.map(&:chomp).reject do |branch|
+    EXCLUDE_MERGED.include?(branch)
+  end.each do |branch|
+    puts ">>> Deleting branch #{branch}"
+    %x(git branch -d #{branch})
+  end
+
+  remote_branches = %x(git branch -r --merged master).split(/\n/).map do |row|
+    row.split(/\s+/).last
+  end.map(&:chomp).reject do |branch|
+    _, branch = branch.split('/')
+    EXCLUDE_MERGED.include?(branch)
+  end
+
+  return if remote_branches.empty?
+
+  STDERR.puts
+  STDERR.puts "The following remote branches are fully merged and will be removed:"
+  STDERR.puts
+  puts remote_branches.join("\n")
+
+  remote_branches.each do |branch|
+    remote, branch = branch.split('/')
+    puts %x(git push #{remote} :#{branch})
+  end
+end
+
+def cleanup_stale
+  return unless STALE_AGE > 0
+
+  pattern = Regexp.new(STALE_PATTERN)
+  branches = %x(git branch -r --list).split.map(&:chomp).select do |branch|
+    branch =~ pattern
+  end
+
+  now = Time.now
+
+  stale = branches.select do |branch|
+    mtime = Time.at(%x(git --no-pager show -s --format=%at #{branch}).chomp.to_i)
+    now - mtime > STALE_AGE*24*60*60
+  end
+
+  return unless stale.any?
+
+  STDERR.puts
+  STDERR.puts "The following remote branches had no activity for #{STALE_AGE} days and will be removed:"
+  STDERR.puts
+  puts stale.join("\n")
+
+  stale.each do |branch|
+    remote, branch = branch.split('/')
+    puts %x(git push #{remote} :#{branch})
+  end
+end
+
+prune_origin
+cleanup_merged
+cleanup_stale

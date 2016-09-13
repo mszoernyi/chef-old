@@ -1,0 +1,60 @@
+#!/usr/bin/env ruby
+
+begin
+  require 'active_support/all'
+  require 'github_api'
+  require 'highline/import'
+  require 'rake'
+  require 'netrc'
+rescue LoadError
+  puts "Missing Gems! Install with `gem install activesupport github_api highline rake netrc`"
+  exit 1
+end
+
+RakeFileUtils.verbose_flag = false
+include RakeFileUtils
+
+netrc = Netrc.read
+username, password = netrc["github.com"]
+
+if username.nil?
+  username = ask("Username: ")
+  password = ask("Password: ") { |q| q.echo = false }
+end
+
+org = File.basename(Dir.pwd)
+
+gh = Github.new({
+  basic_auth: "#{username}:#{password}",
+  auto_pagination: true,
+})
+
+start = Time.utc(2014, 11, 11)
+stop = Time.utc(2014, 11, 25)
+
+commits = []
+gh.repos.list(org: org).sort_by { |r| r[:name] }.each do |repo|
+  commits += gh.repos.commits.list(org, repo[:name], sha: 'master', until: stop.iso8601, since: start.iso8601).to_a.map do |commit|
+    commit[:date] = Time.parse(commit[:commit][:committer][:date]).beginning_of_day
+    commit[:repo] = repo[:name]
+    commit
+  end
+end
+
+CONFLUENCE_USERS = {
+  "Benedikt Böhm" => "bene",
+  "Christian Wolter" => "christian",
+  "Giacomo Vergnano" => "giacomo",
+  "Martin Karlsch" => "martin",
+  "Mike Szörnyi" => "mike",
+}
+
+puts "h2. Changes from #{start.to_date} to #{stop.to_date}"
+
+commits.sort_by do |commit|
+  "#{commit[:date]}#{commit[:repo]}"
+end.each do |commit|
+  author = commit[:commit][:committer][:name]
+  author = "[~#{CONFLUENCE_USERS[author]}]" if CONFLUENCE_USERS[author]
+  puts "* *\\[#{commit[:repo]}]* [#{commit[:sha][0..8]}|#{commit[:url]}] #{commit[:commit][:message].split(/\n/).first} (#{commit[:date].to_date}, #{author})"
+end

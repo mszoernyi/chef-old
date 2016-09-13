@@ -23,15 +23,6 @@ cookbook_file node[:git][:exfile] do
 end
 
 if !root?
-  cookbook_file "#{node[:homedir]}/bin/update-github-org" do
-    source "update-github-org"
-    mode "0755"
-  end
-
-  file "#{node[:homedir]}/bin/hub" do
-    action :delete
-  end
-
   overridable_template "#{node[:homedir]}/.gitconfig.local" do
     source "gitconfig.local"
     cookbook "users"

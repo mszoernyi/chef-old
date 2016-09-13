@@ -5,14 +5,14 @@ if gentoo?
     end
 
     package "dev-java/oracle-jdk-bin" do
-      version "1.7*"
+      version "1.8*"
     end
 
     package "dev-java/maven-bin"
 
     execute "eselect-java-vm" do
-      command "eselect java-vm set system oracle-jdk-bin-1.7"
-      not_if { %x(eselect --brief java-vm show system).strip == "oracle-jdk-bin-1.7" }
+      command "eselect java-vm set system oracle-jdk-bin-1.8"
+      not_if { %x(eselect --brief java-vm show system).strip == "oracle-jdk-bin-1.8" }
     end
 
     cookbook_file "/etc/jstatd.policy" do

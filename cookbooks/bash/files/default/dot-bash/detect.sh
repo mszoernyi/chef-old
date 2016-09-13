@@ -40,3 +40,13 @@ elif [[ -d /Applications ]]; then
 		export EPREFIX=${HOME}/Gentoo
 	fi
 fi
+
+if [[ $- != *i* ]]; then
+	_INTERACTIVE=false
+else
+	_INTERACTIVE=true
+fi
+
+interactive() {
+	[[ "${_INTERACTIVE}" == "true" ]]
+}
