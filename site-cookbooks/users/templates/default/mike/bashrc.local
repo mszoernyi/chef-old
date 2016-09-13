@@ -78,4 +78,7 @@ repf() {
 	repoman full
 }
 
+# tmuxinator auto completion
+source ~/bin/tmuxinator-autocomplete.sh
+
 # vim: ft=sh
