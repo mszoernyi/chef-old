@@ -73,23 +73,14 @@ systemd_unit "hdfs@.service"
 systemd_unit "yarn@.service"
 systemd_unit "mapred@.service"
 
-src_tar = "http://www.apache.org/dist/hadoop/common/hadoop-#{node[:hadoop2][:version]}/hadoop-#{node[:hadoop2][:version]}-src.tar.gz"
-src_dir = "/var/app/hadoop2/releases/hadoop-#{node[:hadoop2][:version]}-src"
-release_dir = "#{src_dir}/hadoop-dist/target/hadoop-#{node[:hadoop2][:version]}"
+binary_tar = "http://apache.mirrors.ovh.net/ftp.apache.org/dist/hadoop/common/hadoop-#{node[:hadoop2][:version]}/hadoop-#{node[:hadoop2][:version]}.tar.gz"
+release_dir = "/var/app/hadoop2/releases/hadoop-#{node[:hadoop2][:version]}"
 
-tar_extract src_tar do
+tar_extract binary_tar do
   target_dir "/var/app/hadoop2/releases"
-  creates src_dir
+  creates release_dir
   user "hadoop2"
   group "hadoop2"
-end
-
-execute "hadoop2-build" do
-  command "/bin/bash -l -c 'mvn clean package -Pdist,native -Drequire.snappy -DskipTests -Dmaven.javadoc.skip=true'"
-  user "hadoop2"
-  group "hadoop2"
-  cwd src_dir
-  not_if { File.exists?(release_dir) }
 end
 
 template "#{release_dir}/libexec/hadoop-layout.sh" do
