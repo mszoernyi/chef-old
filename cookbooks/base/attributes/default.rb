@@ -19,6 +19,7 @@ else
   default[:cluster][:host][:id] = 1
 end
 
+default[:rack_id] = "/#{node[:cluster][:name]}/#{node[:ipaddress].split('.')[0..2].join('.')}"
 
 # contacts
 default[:contacts][:hostmaster] = "hostmaster@#{node[:chef_domain]}"
