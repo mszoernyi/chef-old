@@ -13,29 +13,6 @@ default[:hadoop2][:java_tmp] = "/var/tmp/java"
 
 default[:hadoop2][:zookeeper][:cluster] = node.cluster_name
 
-# http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.0.9.1/bk_installing_manually_book/content/rpm-chap1-11.html
-mem_total = node[:memory][:total].to_i * 3 / 4 / 1024 / 1024 rescue 0.25
-
-if mem_total <= 4
-  min_container_size = 0.25
-elsif mem_total <= 8
-  min_container_size = 0.5
-elsif mem_total <= 24
-  min_container_size = 1
-else
-  min_container_size = 2
-end
-
-default[:hadoop2][:yarn][:containers] = [
-  node[:cpu][:total],
-  mem_total / min_container_size,
-].min
-
-default[:hadoop2][:yarn][:mem_per_container] = [
-  min_container_size,
-  mem_total / node[:hadoop2][:yarn][:containers],
-].max
-
 default[:hadoop2][:pig][:version] = "0.13.0"
 default[:hadoop2][:pig][:default_jars] = %w{
   http://search.maven.org/remotecontent?filepath=com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar
