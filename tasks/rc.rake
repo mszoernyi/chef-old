@@ -9,6 +9,15 @@ namespace :rc do
     end
   end
 
+  desc "Run chef-client"
+  task :deploy do
+    search("*:*") do |node|
+      system("ssh -t #{node.name} '/usr/bin/sudo -Hi chef-client'")
+      puts "sleeping for 1 minute ..."
+      sleep(60)
+    end
+  end
+
   desc "Open interactive shell"
   task :shell do
     search("*:*") do |node|
