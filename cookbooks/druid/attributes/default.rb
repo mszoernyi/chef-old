@@ -12,7 +12,7 @@ default[:druid][:core_extensions] = [
   "druid-hdfs-storage",
   "druid-kafka-eight",
   "druid-histogram",
-  "druid-namespace-lookup",
+  "druid-lookups-cached-global",
   "druid-datasketches",
 ]
 
@@ -77,6 +77,3 @@ default[:druid][:middleManager][:dm] = 64
 default[:druid][:worker][:capacity] = [node[:cpu][:total]/4,1].max
 default[:druid][:indexer][:runner][:javaOpts] = "-d64 -server -Xmx8g -XX:MaxPermSize=256m -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
 default[:druid][:indexer][:runner][:startPort] = 8092
-
-# Query Time Lookups
-default[:druid][:namespace][:lookups] = []
