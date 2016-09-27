@@ -46,12 +46,12 @@ default[:druid][:coordinator][:dm] = 64
 
 # Broker Services
 default[:druid][:broker][:port] = 8080
-default[:druid][:broker][:mx] = node[:memory][:total].to_i/1024 - node[:druid][:processing][:memory] - node[:druid][:coordinator][:mx].to_i - 2048
+default[:druid][:broker][:mx] = 8192
 default[:druid][:broker][:dm] = node[:druid][:processing][:memory]
 default[:druid][:broker][:connections] = 20
 default[:druid][:broker][:timeout] = "PT10M"
 default[:druid][:broker][:balancer] = "connectionCount"
-default[:druid][:cache][:enabled] = true
+default[:druid][:cache][:enabled] = false
 
 # Realtime Services
 default[:druid][:realtime][:port] = 8083
