@@ -1,5 +1,10 @@
 PATH=$PATH:~/.npm/bin
 
+
+if [[ -e ~/.gimme/envs/go1.7.env ]]; then
+    source ~/.gimme/envs/go1.7.env 2>/dev/null
+fi
+
 # blacklist for bash completion
 FIGNORE=".o:~:CVS:.svn:.git:metadata.json"
 
@@ -43,16 +48,16 @@ alias nutz="ssh mike@cafe.noova.de"
 
 # always use system ruby to start vim
 vim() {
-	rvm system exec vim "$@"
+    rvm system exec vim "$@"
 }
 
 # host shortcuts
 remote_tmux() {
-	if [[ $# -eq 2 ]]; then
-		ssh -XY -D $2 -t $1 /bin/bash -li -c 'T'
-	else
-		ssh -XY -t $1 /bin/bash -li -c 'T'
-	fi
+    if [[ $# -eq 2 ]]; then
+        ssh -XY -D $2 -t $1 /bin/bash -li -c 'T'
+    else
+        ssh -XY -t $1 /bin/bash -li -c 'T'
+    fi
 }
 
 function T () {
@@ -61,21 +66,21 @@ function T () {
 
 
 function Z() {
-	remote_tmux mike.dev.zenops.net 9991
+    remote_tmux mike.dev.zenops.net 9991
 }
 
 repm() {
-	repoman manifest
+    repoman manifest
 }
 
 reps() {
-	repm
-	repoman scan
+    repm
+    repoman scan
 }
 
 repf() {
-	repm
-	repoman full
+    repm
+    repoman full
 }
 
 # tmuxinator auto completion
