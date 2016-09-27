@@ -13,7 +13,7 @@ default[:hadoop2][:java_tmp] = "/var/tmp/java"
 
 default[:hadoop2][:zookeeper][:cluster] = node.cluster_name
 
-default[:hadoop2][:pig][:version] = "0.13.0"
+default[:hadoop2][:pig][:version] = "0.16.0"
 default[:hadoop2][:pig][:default_jars] = %w{
   http://search.maven.org/remotecontent?filepath=com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar
   http://search.maven.org/remotecontent?filepath=com/twitter/elephantbird/elephant-bird-pig/4.5/elephant-bird-pig-4.5.jar
