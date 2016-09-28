@@ -51,7 +51,6 @@ default[:druid][:broker][:dm] = node[:druid][:processing][:memory]
 default[:druid][:broker][:connections] = 20
 default[:druid][:broker][:timeout] = "PT10M"
 default[:druid][:broker][:balancer] = "connectionCount"
-default[:druid][:cache][:enabled] = false
 
 # Realtime Services
 default[:druid][:realtime][:port] = 8083
