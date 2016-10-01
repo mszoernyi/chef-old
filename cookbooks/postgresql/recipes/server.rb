@@ -87,6 +87,7 @@ systemd_timer "postgresql-backup" do
     ],
     user: "postgres",
     group: "postgres",
+    timeout: "20h"
   })
   action :delete unless primary
 end
