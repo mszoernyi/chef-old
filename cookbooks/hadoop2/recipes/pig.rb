@@ -1,6 +1,6 @@
 include_recipe "hadoop2"
 
-pig_tar = "http://mirror.leaseweb.com/apache/pig/pig-#{node[:hadoop2][:pig][:version]}/pig-#{node[:hadoop2][:pig][:version]}.tar.gz"
+pig_tar = "http://mirror.netcologne.de/apache.org/pig/pig-#{node[:hadoop2][:pig][:version]}/pig-#{node[:hadoop2][:pig][:version]}.tar.gz"
 pig_basedir = "/var/app/hadoop2/pig"
 pig_dir = "#{pig_basedir}/pig-#{node[:hadoop2][:pig][:version]}"
 

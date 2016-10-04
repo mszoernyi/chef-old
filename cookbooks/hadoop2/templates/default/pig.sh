@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# for proper ENV
+source /etc/profile
+
 cd /var/app/hadoop2/pig/pig-<%= node[:hadoop2][:pig][:version] %>
 
 for JAR in /var/app/hadoop2/pig/contrib/*.jar; do
