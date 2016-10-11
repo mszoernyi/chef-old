@@ -1,5 +1,5 @@
 package "dev-db/postgresql" do
-  version ":9.4"
+  version ":#{node[:postgresql][:slot]}"
 end
 
 chef_gem 'pg' do
