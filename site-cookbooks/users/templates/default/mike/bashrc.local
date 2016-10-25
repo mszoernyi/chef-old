@@ -29,6 +29,7 @@ alias gp="git pull --rebase"
 alias gpv="git push -f origin HEAD:vagrant/mike"
 alias grh="git reset HEAD"
 alias s="git status"
+alias gg="git grep -n"
 
 # ruby/rails shortcuts
 alias b="bundle"

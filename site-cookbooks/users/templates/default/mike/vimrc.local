@@ -26,15 +26,12 @@ set autowriteall
 " no backup files (we have git after all)
 set nobackup
 
-""
-"" Backup and swap files
-""
-set backupdir=~/.vim/backup//
-set directory=~/.vim/swap//
-set undodir=~/.vim/undo//
-
 " highlight current line
 set cursorline
+
+" ignore X11 clipboard
+" http://stackoverflow.com/questions/14635295/vim-takes-a-very-long-time-to-start-up
+set clipboard=exclude:.*
 
 " easy pasting
 set pastetoggle=<F4>
@@ -53,6 +50,7 @@ nnoremap <silent> <leader>tc :tabclose<CR>
 " {{{ libraries
 NeoBundle 'vim-scripts/genutils.git'
 NeoBundle 'MarcWeber/vim-addon-mw-utils'
+NeoBundle 'tpope/vim-dispatch'
 " }}}
 
 " {{{ syntax- & filetypes
@@ -66,33 +64,23 @@ autocmd BufNewFile,BufRead *.jsonp set filetype=json
 "NeoBundle 'kchmck/vim-coffee-script'
 "autocmd BufNewFile,BufRead *.coffee set filetype=coffee
 
-"NeoBundle 'heartsentwined/vim-emblem'
-"autocmd BufNewFile,BufRead *.emblem set filetype=emblem
-"autocmd FileType emblem set tabstop=2|set shiftwidth=2|set expandtab
+NeoBundle 'leafgarland/typescript-vim'
+autocmd BufNewFile,BufRead *.ts set filetype=typescript
 
-"NeoBundle 'heartsentwined/vim-ember-script'
-"autocmd BufNewFile,BufRead *.em set filetype=ember-script
-"autocmd FileType ember-script set tabstop=2|set shiftwidth=2|set expandtab
+NeoBundle 'heartsentwined/vim-ember-script'
+autocmd BufNewFile,BufRead *.em set filetype=ember-script
+autocmd FileType ember-script set tabstop=2|set shiftwidth=2|set expandtab
 
 NeoBundle 'mustache/vim-mustache-handlebars'
 let g:mustache_abbreviations = 1
 autocmd BufNewFile,BufRead *.hbs set filetype=mustache
+autocmd FileType mustache set tabstop=2|set shiftwidth=2|set expandtab
 
 " JS syntax sugar eg. ES6
 NeoBundle 'othree/yajs.vim'
 
 " Syntastic / linter
 NeoBundle 'scrooloose/syntastic'
-" let g:syntastic_javascript_checkers = ['eslint']
-" set statusline+=%#warningmsg#
-" set statusline+=%{SyntasticStatuslineFlag()}
-" set statusline+=%*
-
-" let g:syntastic_always_populate_loc_list = 1
-" let g:syntastic_auto_loc_list = 1
-" let g:syntastic_check_on_open = 1
-" let g:syntastic_check_on_wq = 0
-
 " config based on http://usevim.com/2016/03/07/linting/
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
@@ -104,6 +92,10 @@ let g:syntastic_auto_loc_list = 0
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 1
 let g:syntastic_javascript_checkers = ['eslint']
+let g:syntastic_go_checkers = ['gometalinter']
+let g:syntastic_go_gometalinter_args = '--vendor --errors --fast -D gotype'
+let g:syntastic_ruby_checkers = ['rubocop', 'mri']
+let g:syntastic_ruby_exec = '~/.rvm/rubies/default/bin/ruby'
 
 let g:syntastic_error_symbol = '❌'
 let g:syntastic_style_error_symbol = '⁉️'
@@ -116,15 +108,17 @@ highlight link SyntasticStyleErrorSign SignColumn
 highlight link SyntasticStyleWarningSign SignColumn
 
 " Golang support
-"NeoBundle 'hollow/vim-go'
-"let g:go_fmt_command = "goimports"
-"let g:go_highlight_functions = 1
-"let g:go_highlight_methods = 1
-"let g:go_highlight_structs = 1
-"let $GOPATH = getcwd() . "/.vendor:/home/mike/.go"
-"au BufNewFile,BufRead *.go set filetype=go
-"au FileType go nmap gd <Plug>(go-def-split)
-"au FileType go nmap <Leader>gd <Plug>(go-doc)
+NeoBundle 'fatih/vim-go'
+let g:go_fmt_command = 'goimports'
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_structs = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_build_constraints = 1
+let g:go_bin_path = expand("~/.go/bin")
+au BufNewFile,BufRead *.go set filetype=go sw=4 ts=4 noexpandtab
+au FileType go nmap <Leader>ds <Plug>(go-def-split)
+au FileType go nmap <Leader>gd <Plug>(go-doc)
 
 " Git commit messages start at the top and in insert mode
 au FileType gitcommit au! BufEnter COMMIT_EDITMSG call feedkeys('ggi', 't')
@@ -135,7 +129,6 @@ NeoBundle 'hollow/vim-colors-solarized'
 set t_Co=256
 set background=dark
 colorscheme solarized
-call togglebg#map("<F8>")
 
 NeoBundle 'bling/vim-airline'
 let g:airline_left_sep=''
@@ -155,6 +148,9 @@ autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTree
 nnoremap <silent> <leader>fm :NERDTreeToggle<CR>
 nnoremap <silent> <leader>fs :NERDTreeFind<CR>
 
+" also close the quickfix window if it is the last window
+autocmd WinEnter * if &buftype ==# 'quickfix' && winnr('$') == 1 | quit | endif
+
 " Full path fuzzy file, buffer, mru, tag, ... finder for Vim.
 NeoBundle 'hollow/ctrlp.vim'
 let g:ctrlp_cmd = 'CtrlPMixed'
@@ -170,15 +166,13 @@ endif
 " Tagbar is a vim plugin for browsing the tags of source code files. It
 " provides a sidebar that displays the ctags-generated tags of the current
 " file, ordered by their scope.
-"NeoBundle 'majutsushi/tagbar'
-"nnoremap <silent> <F9> :TagbarOpenAutoClose<cr>
+NeoBundle 'majutsushi/tagbar'
+nnoremap <silent> <F9> :TagbarOpenAutoClose<cr>
 
 " a Git wrapper so awesome, it should be illegal
 NeoBundle 'tpope/vim-fugitive'
 autocmd BufReadPost fugitive://* set bufhidden=delete
-map <leader>ga :silent :Git add %<cr>:redraw!<cr>
 map <leader>gb :silent :Gblame<cr>
-map <leader>gc :silent :Gcommit<cr>ggi
 map <leader>gd :silent :Git diff<cr>:redraw!<cr>
 map <leader>gl :silent :Git lg<cr>:redraw!<cr>
 map <leader>gp :silent :Git add -p %<cr>:redraw!<cr>
@@ -219,6 +213,7 @@ NeoBundle 'tpope/vim-surround.git'
 " The NERD commenter provides many different commenting operations and styles
 " which are invoked via key mappings and a menu. These operations are
 " available for most filetypes.
+" TODO bindings are broken
 let NERDCreateDefaultMappings = 0
 NeoBundle 'scrooloose/nerdcommenter'
 nmap <leader>cl <Plug>NERDComToggleComment
@@ -248,14 +243,24 @@ nnoremap <silent> S :<C-U>call <SID>try('SplitjoinSplit', 'S')<CR>
 
 " Vim script for text filtering and alignment
 NeoBundle 'godlygeek/tabular'
-nmap <leader>a= :Tabularize /=<CR>
-vmap <leader>a= :Tabularize /=<CR>
-nmap <leader>a: :Tabularize /:\zs<CR>
-vmap <leader>a: :Tabularize /:\zs<CR>
-nmap <leader>a, :Tabularize /,\zs<CR>
-vmap <leader>a, :Tabularize /,\zs<CR>
-nmap <leader>a<Bar> :Tabularize /<Bar><CR>
-vmap <leader>a<Bar> :Tabularize /<Bar><CR>
+nmap <Leader>a& :Tabularize /&<CR>
+vmap <Leader>a& :Tabularize /&<CR>
+nmap <Leader>a= :Tabularize /=<CR>
+vmap <Leader>a= :Tabularize /=<CR>
+nmap <Leader>a: :Tabularize /:\zs<CR>
+vmap <Leader>a: :Tabularize /:\zs<CR>
+nmap <Leader>a, :Tabularize /,\zs<CR>
+vmap <Leader>a, :Tabularize /,\zs<CR>
+nmap <Leader>a<Bar> :Tabularize /<Bar><CR>
+vmap <Leader>a<Bar> :Tabularize /<Bar><CR>
+
+" some focus and escape code optimizations for iterm/tmux
+NeoBundle 'sjl/vitality.vim'
+let g:vitality_always_assume_iterm = 1
+au BufLeave,FocusLost * silent! update
+au BufEnter,FocusGained * silent! redraw!
+set timeoutlen=1000 ttimeoutlen=0
+
 " }}}
 
 " {{{ key mappings
@@ -271,11 +276,9 @@ nnoremap <silent> <c-l> :TmuxNavigateRight<cr>
 xnoremap P Pgvy
 
 " grep
-NeoBundle "dkprice/vim-easygrep"
-let g:EasyGrepCommand = 1
-let g:EasyGrepRecursive = 1
-let g:EasyGrepJumpToMatch = 0
-map <silent> <Leader>gw <plug>EgMapGrepCurrentWord_v
+NeoBundle "rking/ag.vim"
+map <silent> <Leader>gw :Ag '\b<cword>\b'<cr>
+
 
 " cleanup whitespace terror
 nmap <silent> <leader>ws :set et<cr>:retab<cr>:%s/\s\+$//g<cr>
@@ -306,17 +309,6 @@ NeoBundle 'editorconfig/editorconfig-vim'
 " jump to next hunk (change): ]c
 " jump to previous hunk (change): [c
 NeoBundle 'airblade/vim-gitgutter'
-
-" Prevent replacing paste buffer on paste
-function! RestoreRegister()
-  let @" = s:restore_reg
-  return ''
-endfunction
-function! s:Repl()
-  let s:restore_reg = @"
-  return "p@=RestoreRegister()\<cr>"
-endfunction
-vmap <silent> <expr> p <sid>Repl()
 
 " Quickly select text you just pasted
 noremap gV `[v`]
