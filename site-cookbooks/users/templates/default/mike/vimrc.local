@@ -78,6 +78,8 @@ autocmd FileType mustache set tabstop=2|set shiftwidth=2|set expandtab
 
 " JS syntax sugar eg. ES6
 NeoBundle 'othree/yajs.vim'
+NeoBundle 'othree/jsdoc-syntax.vim'
+NeoBundle 'heavenshell/vim-jsdoc'
 
 " Syntastic / linter
 NeoBundle 'scrooloose/syntastic'
