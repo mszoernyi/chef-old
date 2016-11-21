@@ -62,7 +62,7 @@ remote_tmux() {
 }
 
 function T () {
-    mux remerge
+    tmux -S /tmp/tmux attach
 }
 
 
