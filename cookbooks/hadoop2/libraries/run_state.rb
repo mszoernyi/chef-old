@@ -29,8 +29,9 @@ module Hadoop2RunStateHelpers
 
   def hadoop2_topology
     Hash[node.nodes.map do |n|
-      rack_id_v2 = n[:hadoop2] && n[:hadoop2][:rack_id]
-      rack_id = rack_id_v2 || "/default-rack/#{node.cluster_name}"
+      rack_id = n[:hadoop2] && n[:hadoop2][:rack_id]
+      rack_id ||= n[:rack_id]
+      rack_id ||= "/#{node.cluster_name}"
       [n, rack_id]
     end]
   end

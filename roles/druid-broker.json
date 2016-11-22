@@ -2,7 +2,6 @@
   "name": "druid-broker",
   "run_list": [
     "role[base]",
-    "role[memcached]",
     "role[druid-sources]",
     "role[druid-storage]",
     "recipe[druid::broker]"

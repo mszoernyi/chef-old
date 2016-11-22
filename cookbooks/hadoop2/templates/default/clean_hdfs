@@ -37,6 +37,8 @@ def clean_directory(path, mtime)
       end
     end
   end
+rescue => e
+  puts e
 end
 
 <% node[:hadoop2][:hdfs][:clean].each do |dir, days| %>

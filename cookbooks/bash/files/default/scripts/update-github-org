@@ -28,7 +28,9 @@ gh = Github.new({
   auto_pagination: true,
 })
 
-sh("update-deps")
+if ENV['DEPS'] == '1'
+  sh("update-deps")
+end
 
 gh.repos.list(org: org).sort_by { |r| r[:name] }.each do |repo|
   if !File.exist?(repo[:name])

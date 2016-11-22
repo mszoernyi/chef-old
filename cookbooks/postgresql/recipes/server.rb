@@ -1,7 +1,6 @@
 include_recipe "postgresql"
 
-version = "9.4"
-homedir = "/var/lib/postgresql/#{version}"
+homedir = "/var/lib/postgresql/#{node[:postgresql][:slot]}"
 datadir = "#{homedir}/data"
 
 node.set[:postgresql][:connection][:host] = node[:fqdn]
@@ -14,7 +13,7 @@ directory datadir do
 end
 
 execute "postgresql-initdb" do
-  command "/usr/lib/postgresql-#{version}/bin/initdb --pgdata #{datadir} --locale=en_US.UTF-8"
+  command "/usr/lib/postgresql-#{node[:postgresql][:slot]}/bin/initdb --pgdata #{datadir} --locale=en_US.UTF-8"
   user "postgres"
   group "postgres"
   creates File.join(datadir, "PG_VERSION")
@@ -27,7 +26,7 @@ directory "#{datadir}/pg_log_archive" do
 end
 
 template "#{datadir}/postgresql.conf" do
-  source "postgresql.conf"
+  source "#{node[:postgresql][:slot]}/postgresql.conf"
   owner "postgres"
   group "postgres"
   mode "0600"
@@ -36,7 +35,7 @@ template "#{datadir}/postgresql.conf" do
 end
 
 template "#{datadir}/pg_hba.conf" do
-  source "pg_hba.conf"
+  source "#{node[:postgresql][:slot]}/pg_hba.conf"
   owner "postgres"
   group "postgres"
   mode "0600"
@@ -44,14 +43,14 @@ template "#{datadir}/pg_hba.conf" do
 end
 
 template "#{datadir}/pg_ident.conf" do
-  source "pg_ident.conf"
+  source "#{node[:postgresql][:slot]}/pg_ident.conf"
   owner "postgres"
   group "postgres"
   mode "0600"
   notifies :reload, "service[postgresql]"
 end
 
-directory "/etc/postgresql-#{version}" do
+directory "/etc/postgresql-#{node[:postgresql][:slot]}" do
   action :delete
   recursive true
 end
@@ -60,7 +59,7 @@ systemd_tmpfiles "postgresql"
 systemd_unit "postgresql@.service"
 
 service "postgresql" do
-  service_name "postgresql@#{version}.service"
+  service_name "postgresql@#{node[:postgresql][:slot]}.service"
   action [:enable, :start]
   supports [:reload]
 end
@@ -88,6 +87,7 @@ systemd_timer "postgresql-backup" do
     ],
     user: "postgres",
     group: "postgres",
+    timeout: "20h"
   })
   action :delete unless primary
 end

@@ -41,7 +41,7 @@
 
 # kafka virtual hostnames
 <% node.nodes.each do |n| %>
-<% if n.role?("kafka") && n[:kafka][:private] && n[:kafka][:private_hostname] %>
+<% if n.role?("kafka") && n[:kafka] && n[:kafka][:private] && n[:kafka][:private_hostname] %>
 <% if n.cluster_name == node.cluster_name %>
 <%= n[:private_ipaddress] %> <%= n[:kafka][:private_hostname] %>
 <% else %>

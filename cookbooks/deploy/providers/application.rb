@@ -11,6 +11,8 @@ action :create do
   deploy_branch path do
     repository nr.repository
     revision revision
+    enable_submodules true
+
     user nr.user
 
     action :force_deploy if nr.force

@@ -9,6 +9,15 @@ namespace :rc do
     end
   end
 
+  desc "Run chef-client"
+  task :deploy do
+    search("*:*") do |node|
+      system("ssh -t #{node.name} '/usr/bin/sudo -Hi chef-client'")
+      puts "sleeping for 1 minute ..."
+      sleep(60)
+    end
+  end
+
   desc "Open interactive shell"
   task :shell do
     search("*:*") do |node|
@@ -23,7 +32,8 @@ namespace :rc do
   desc "Reboot machines and wait until they are up"
   task :reboot do
     search("default_query:does_not_exist") do |node|
-      system("ssh -t #{fqdn} '/usr/bin/sudo -i reboot'")
+      system("ssh -t #{node.name} '/usr/bin/sudo -i reboot'")
+      wait_for_ssh(node[:fqdn])
       puts "Sleeping 5 minutes to slow down reboot loop"
       sleep 5*60
     end

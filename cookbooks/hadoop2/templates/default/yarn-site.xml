@@ -7,23 +7,15 @@
   </property>
   <property>
     <name>yarn.nodemanager.resource.cpu-vcores</name>
-    <value><%= [2, node[:cpu][:total]].max %></value>
+    <value>8</value>
   </property>
   <property>
     <name>yarn.nodemanager.resource.memory-mb</name>
-    <value><%= (node[:hadoop2][:yarn][:containers] * node[:hadoop2][:yarn][:mem_per_container] * 1024).to_i %></value>
-  </property>
-  <property>
-    <name>yarn.scheduler.minimum-allocation-mb</name>
-    <value><%= (node[:hadoop2][:yarn][:mem_per_container] * 1024).to_i %></value>
-  </property>
-  <property>
-    <name>yarn.scheduler.maximum-allocation-mb</name>
-    <value><%= (node[:hadoop2][:yarn][:containers] * node[:hadoop2][:yarn][:mem_per_container] * 1024).to_i %></value>
+    <value><%= node[:memory][:total].to_i * 3 / 4 / 1024 %></value>
   </property>
   <property>
     <name>yarn.app.mapreduce.am.command-opts</name>
-    <value>-Xmx<%= (0.8 * 2 * node[:hadoop2][:yarn][:mem_per_container] * 1024).to_i %>m</value>
+    <value>-Xmx1024m</value>
   </property>
   <property>
     <name>yarn.nodemanager.aux-services</name>

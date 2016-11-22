@@ -11,6 +11,10 @@ fi
 git checkout -q master || exit 1
 git pull --quiet --ff-only || exit 1
 
+if [[ $DEPS -ne 1 ]]; then
+	exit 0
+fi
+
 if [[ -e glide.lock ]]; then
 	rm -rf vendor
 	make -s clean
