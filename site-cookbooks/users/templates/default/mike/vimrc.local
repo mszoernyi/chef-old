@@ -44,8 +44,11 @@ set splitbelow
 " }}}
 
 " tabedit helpers
-nnoremap <silent> <leader>te :tabedit %<CR>
-nnoremap <silent> <leader>tc :tabclose<CR>
+map <leader>tt :tabnew<cr>
+map <leader>tc :tabclose<cr>
+map <leader>tm :tabmove
+map <leader>tn :tabnext<cr>
+map <leader>tp :tabprevious<cr>
 
 " {{{ libraries
 NeoBundle 'vim-scripts/genutils.git'
