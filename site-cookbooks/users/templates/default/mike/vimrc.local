@@ -112,6 +112,17 @@ highlight link SyntasticWarningSign SignColumn
 highlight link SyntasticStyleErrorSign SignColumn
 highlight link SyntasticStyleWarningSign SignColumn
 
+" ruby & co
+NeoBundle 'vim-ruby/vim-ruby'
+NeoBundle 'tpope/vim-bundler'
+NeoBundle 'tpope/vim-rake'
+NeoBundle 'tpope/vim-rails'
+let g:ruby_path = '~/.rvm/rubies/default/bin/ruby'
+autocmd FileType ruby,eruby set ts=2 sw=2 et
+autocmd FileType ruby,eruby let g:rubycomplete_buffer_loading = 1
+autocmd FileType ruby,eruby let g:rubycomplete_rails = 1
+autocmd FileType ruby,eruby let g:rubycomplete_classes_in_global = 1
+
 " Golang support
 NeoBundle 'fatih/vim-go'
 let g:go_fmt_command = 'goimports'
